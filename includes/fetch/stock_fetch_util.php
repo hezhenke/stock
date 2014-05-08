@@ -86,30 +86,42 @@ function set_corp_data_into_db($code){
 		}
 
 		krsort($dataArray); // 排倒序
-
+		
+		$isSuccess = true;
+		
 		foreach ($dataArray as $item){
+			
 			$date = $item[0];
-			$open = $item[1];
-			$high = $item[2];
-			$low = $item[3];
-			$close = $item[4];
-			$volume = $item[5];
-			$adj_close = $item[6];
-
-			$sql = 'insert into `'.$table_name.'` set date="'.$date.'",open="'.$open
-			.'",high="'.$high.'",low="'.$low.'",close="'.$close
-			.'",volume="'.$volume.'",adj_close="'.$adj_close
-			.'" on duplicate key update open="'.$open.'",high="'.$high
-			.'",low="'.$low.'",close="'.$close.'",volume="'.$volume.'",adj_close="'.$adj_close.'"';
-
-			if ($conn->query($sql)) {
-				print_r($date." insert success \n");
+			
+			if (strlen($date) == 10 && (substr($date, 0, 1) == '1' || substr($date, 0, 1) == '2')) {
+				$open = $item[1];
+				$high = $item[2];
+				$low = $item[3];
+				$close = $item[4];
+				$volume = $item[5];
+				$adj_close = $item[6];
+				
+				$sql = 'insert into `'.$table_name.'` set date="'.$date.'",open="'.$open
+					.'",high="'.$high.'",low="'.$low.'",close="'.$close
+					.'",volume="'.$volume.'",adj_close="'.$adj_close
+					.'" on duplicate key update open="'.$open.'",high="'.$high
+					.'",low="'.$low.'",close="'.$close.'",volume="'.$volume.'",adj_close="'.$adj_close.'"';
+		
+				if ($conn->query($sql)) {
+					//print_r($date." insert success \n");
+				}
+				$isSuccess = true;
+			}else {
+				$isSuccess = false;
 			}
 		}
 
 		fclose($file);
 		$conn->close();
+		
+		return $isSuccess;
 	}else {
+		return false;
 		die("can not open csv file, PLZ check!\n");
 	}
 }
