@@ -6,7 +6,7 @@ define('PIC_FILE_EXTERN', 'jpg');
 
 define('IS_DEBUG', true);
 
-define('ROOT_PATH', preg_replace('/includes(.*)/i', '', str_replace('\\', '/', __FILE__)));
+//define('ROOT_PATH', preg_replace('/includes(.*)/i', '', str_replace('\\', '/', __FILE__)));
 
 define('DB_CHARSET', 'utf-8');
 

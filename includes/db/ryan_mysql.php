@@ -49,6 +49,9 @@ class ryan_mysql {
 				$this->ErrorMsg ( "Can't select MySQL database($db_name)!" );
 				return false;
 			} else {
+				// 防止数据库连接超时
+				ini_set('mysql.connect_timeout', 300);
+				ini_set('default_socket_timeout', 300);
 				return true;
 			}
 		} else {

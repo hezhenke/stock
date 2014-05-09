@@ -12,11 +12,15 @@
 */ 
 
 require_once 'stock_fetch_util.php';
+require_once '../Util.php';
+
 $conn = new ryan_mysql();
 
 $sql = 'SELECT * FROM corp_codes';
 
 $result = $conn->getAll($sql);
+
+log_to_text('fetch realtime data START');
 
 if ($result) {
 	foreach ($result as $item){
@@ -25,5 +29,7 @@ if ($result) {
 		set_realtime_data_into_db($code);
 	}
 }
+
+log_to_text('fetch realtime data END');
 
 $conn->close();

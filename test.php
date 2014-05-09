@@ -11,21 +11,4 @@
 * -----------------------------------------------------------
 */ 
 
-$file_name = "test.log";
-$log = "test";
-
-$handle = @fopen($file_name, "a");
-if (!file_exists($file_name)) {
-	print_r("cannot read");
-	fclose($handle);
-	
-	$handle = @fopen($file_name, "a");
-}
-
-if (is_writeable($file_name)) {
-	fputs($handle, $log);
-}
-
-fclose($handle);
-
-print_r(date('Y-m-d H:i:s',time())."\n");
+phpinfo();

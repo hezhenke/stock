@@ -17,6 +17,9 @@ require_once '../Util.php';
 
 define('BASE_URI', 'http://table.finance.yahoo.com/table.csv?s=');
 
+// http://table.finance.yahoo.com/table.csv?s=300357.sz 深证的url
+// http://table.finance.yahoo.com/table.csv?a=0&b=1&c=2012&d=3&e=19&f=2012&s=600000.ss 上证的url
+
 // 读取csv，导入公司每日具体数据进数据库
 function set_corp_data_into_db($code){
 	$file_folder = ROOT_PATH.'resource/';
@@ -43,13 +46,13 @@ function set_corp_data_into_db($code){
 		print_r("open csv success \n");
 
 		$conn = new ryan_mysql();
-
 		// 创建表单
 
 		$corp_code = $code;
 
 		$sql = 'select name from corp_codes where code="'.$code.'"';
 		$result = $conn->getOne($sql);
+
 		if ($result) {
 			$corp_name = $result;
 		}else {
@@ -63,14 +66,13 @@ function set_corp_data_into_db($code){
 		$conn->query($sql);
 
 		// create table if not exists table
-		$sql = 'CREATE TABLE `'.$table_name.'` ('
+		$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
 				.'`date` date NOT NULL,'
 						.'`open` decimal(10,2) NOT NULL DEFAULT 0.00,'
 								.'`high` decimal(10,2) NOT NULL DEFAULT 0.00,'
 										.'`low` decimal(10,2) NOT NULL DEFAULT 0.00,'
 												.'`close` decimal(10,2) NOT NULL DEFAULT 0.00,'
 														.'`volume` varchar(255) NOT NULL DEFAULT 0,'
-																.'`adj_close` decimal(10,2) NOT NULL DEFAULT 0.00,'
 																		.'PRIMARY KEY (`date`)'
 																				.') ENGINE=MyISAM DEFAULT CHARSET=utf8';
 		$conn->query($sql);
@@ -89,6 +91,10 @@ function set_corp_data_into_db($code){
 		
 		$isSuccess = true;
 		
+		if (count($dataArray) == 0) {
+			log_to_text('corp code: '.$code.' csv down fail!');
+		}
+		
 		foreach ($dataArray as $item){
 			
 			$date = $item[0];
@@ -99,13 +105,12 @@ function set_corp_data_into_db($code){
 				$low = $item[3];
 				$close = $item[4];
 				$volume = $item[5];
-				$adj_close = $item[6];
 				
 				$sql = 'insert into `'.$table_name.'` set date="'.$date.'",open="'.$open
 					.'",high="'.$high.'",low="'.$low.'",close="'.$close
-					.'",volume="'.$volume.'",adj_close="'.$adj_close
+					.'",volume="'.$volume
 					.'" on duplicate key update open="'.$open.'",high="'.$high
-					.'",low="'.$low.'",close="'.$close.'",volume="'.$volume.'",adj_close="'.$adj_close.'"';
+					.'",low="'.$low.'",close="'.$close.'",volume="'.$volume.'"';
 		
 				if ($conn->query($sql)) {
 					//print_r($date." insert success \n");
@@ -144,6 +149,9 @@ function down_csv($code){
 		die("error stock code\n");
 	}
 
+	//从
+	$url = $url.'&a=0&b=1&c=2014';
+	
 	httpcopy($url,$file);
 }
 
@@ -239,8 +247,20 @@ function set_realtime_data_into_db($code){
 	if ($volume == 0) {
 		print_r("股票名：".$stock_name."\n今日停牌\n");
 	}else {
-		print_r("股票名：".$stock_name."\n开盘价：".$open."\n当前价：".$current."\n最高价：".$high."\n最低价：".$low."\n成交量：".$volume."\n日期：".$date."\n");
+		print_r("股票名：".$stock_name."\n股票代码：".$table_name."\n开盘价：".$open."\n当前价：".$current."\n最高价：".$high."\n最低价：".$low."\n成交量：".$volume."\n日期：".$date."\n");
 	}
+	
+	// create table if not exists table
+	$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
+			.'`date` date NOT NULL,'
+			.'`open` decimal(10,2) NOT NULL DEFAULT 0.00,'
+					.'`high` decimal(10,2) NOT NULL DEFAULT 0.00,'
+							.'`low` decimal(10,2) NOT NULL DEFAULT 0.00,'
+									.'`close` decimal(10,2) NOT NULL DEFAULT 0.00,'
+											.'`volume` varchar(255) NOT NULL DEFAULT 0,'
+															.'PRIMARY KEY (`date`)'
+																	.') ENGINE=MyISAM DEFAULT CHARSET=utf8';
+	$conn->query($sql);
 
 	$sql = 'insert into `'.$table_name.'` set date="'.$date.'",open="'.$open
 	.'",high="'.$high.'",low="'.$low.'",close="'.$current.'",volume="'.$volume
@@ -282,10 +302,8 @@ function set_corp_list_into_db_from_sina($needDrop){
 
 	if ($needDrop) {
 		$conn = new ryan_mysql();
-		$sql = 'DROP TABLE IF EXISTS `'.$table_name.'`';
-		$conn->query($sql);
 
-		$sql = 'CREATE TABLE `'.$table_name.'` ('
+		$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
 				.'`code` char(10) NOT NULL,'
 						.'`name` char(40) NOT NULL,'
 								//		.'`id` int(11) NOT NULL AUTO_INCREMENT,'
@@ -360,7 +378,7 @@ function set_corp_list_into_db_from_csv($filename){
 		$sql = 'DROP TABLE IF EXISTS `'.$table_name.'`';
 		$conn->query($sql);
 
-		$sql = 'CREATE TABLE `'.$table_name.'` ('
+		$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
 				.'`code` char(10) NOT NULL,'
 						.'`name` char(40) NOT NULL,'
 								//		.'`id` int(11) NOT NULL AUTO_INCREMENT,'
