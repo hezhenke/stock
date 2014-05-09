@@ -194,7 +194,9 @@ function set_realtime_data_into_db($code){
 	$html = get_realtime_data_from_sina($code);
 
 	// 数据处理
-	$rawData = explode("\"",$html)[1];
+	$tempArray = explode("\"",$html);
+	
+	$rawData = $tempArray[1];
 	//print_r($rawData."\n");
 
 	// 判断是否code输入有误
@@ -338,7 +340,9 @@ function request_data_with_prefix($prefix){
 		$html = get_realtime_data_from_sina($code);
 
 		// 数据处理
-		$rawData = explode("\"",$html)[1];
+		$tempArray = explode("\"",$html);
+		
+		$rawData = $tempArray[1];
 		//print_r($rawData."\n");
 
 		// 判断是否code输入有误

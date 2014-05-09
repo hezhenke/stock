@@ -4,7 +4,7 @@
 * ===========================================
 * @Author Ryan
 * @Filename: stock_auto_realtime.php
-* @Description: (用一句话描述该文件做什么) 
+* @Description: 自动化获取实时数据入数据库 
 * @Creation 2014-5-8 下午3:41:43 
 * @Modify 
 * @version V1.0   
