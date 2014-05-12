@@ -32,4 +32,8 @@ if ($result) {
 
 log_to_text('fetch realtime data END');
 
+set_tape_into_db();
+
+log_to_text('fetch tape data END');
+
 $conn->close();

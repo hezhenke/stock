@@ -276,6 +276,87 @@ function set_realtime_data_into_db($code){
 	$conn->close();
 }
 
+function set_tape_into_db(){
+	// 上证tape_000001  		http://hq.sinajs.cn/list=s_sh000001
+	// 深成指tape_399001  	http://hq.sinajs.cn/list=s_sz399001
+	// 中小板指tap_399005		http://hq.sinajs.cn/list=s_sz399005
+	// 创业板tape_399006		http://hq.sinajs.cn/list=s_sz399006
+	
+	get_tape_data_from_sina('000001');
+	get_tape_data_from_sina('399001');
+	get_tape_data_from_sina('399005');
+	get_tape_data_from_sina('399006');
+}
+
+function get_tape_data_from_sina($code){
+	$conn = new ryan_mysql();
+	
+	if ($code == '000001') {
+		$requestURL = 'http://hq.sinajs.cn/list=s_sh'.$code;
+	}else {
+		$requestURL = 'http://hq.sinajs.cn/list=s_sz'.$code;
+	}
+	
+	$table_name = 'tape_'.$code;
+	
+	$html = file_get_contents($requestURL);
+	
+	$html = iconv("gb2312", "utf-8//IGNORE",$html);
+	//print_r($html."\n");
+	
+	// 数据处理
+	$tempArray = explode("\"",$html);
+	
+	$rawData = $tempArray[1];
+	//print_r($rawData."\n");
+	
+	/*
+	 0:指数名称，
+	1:当前点数，
+	2:当前价格，
+	3:涨跌率，
+	4:成交量（手），
+	5:成交额（万元）；
+	*/
+	
+	$rawDataArray = explode(",", $rawData);
+	
+	$stock_name = trim($rawDataArray[0]);
+	$point = $rawDataArray[1];
+	$pRange = $rawDataArray[3];
+	$volume = $rawDataArray[4];
+	$money = $rawDataArray[5];
+	$date = date("Y-m-d");
+	
+	if ($volume == 0) {
+		print_r("股票名：".$stock_name."\n今日停牌\n");
+	}else {
+		print_r("股票名：".$stock_name."\n股票代码：".$table_name."\n当前点数：".$point."\n涨跌：".$pRange."\n成交量：".$volume."\n成交额：".$money."\n日期：".$date."\n");
+	}
+	
+	// create table if not exists table
+	$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
+			.'`date` date NOT NULL,'
+			.'`point` decimal(10,2) NOT NULL DEFAULT 0.00,'
+					.'`pRange` decimal(10,2) NOT NULL DEFAULT 0.00,'
+							.'`volume` varchar(255) NOT NULL DEFAULT 0,'
+									.'`money` varchar(255) NOT NULL DEFAULT 0,'
+											.'PRIMARY KEY (`date`)'
+													.') ENGINE=MyISAM DEFAULT CHARSET=utf8';
+	$conn->query($sql);
+	
+	$sql = 'insert into `'.$table_name.'` set date="'.$date.'",point="'.$point
+	.'",pRange="'.$pRange.'",volume="'.$volume.'",money="'.$money
+	.'" on duplicate key update point="'.$point.'",pRange="'.$pRange
+	.'",volume="'.$volume.'",money="'.$money.'"';
+	
+	if ($conn->query($sql)) {
+		print_r($date." insert success \n");
+	}
+	
+	$conn->close();
+}
+
 function get_realtime_data_from_sina($code){
 	$baseURI = "http://hq.sinajs.cn/list=";
 	$requestURL = "";

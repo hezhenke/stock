@@ -21,7 +21,7 @@ function has_dir_or_create($filePath){
 }
 
 function log_to_text($logText,$level='INFO'){
-	$file_name = ROOT_PATH."info.log";
+	$file_name = ROOT_PATH."/log/info.log";
 	$log = '['.date('Y-m-d H:i:s',time()).']:['.$level.']: '.$logText."\n";
 	
 	$handle = @fopen($file_name, "a");
