@@ -11,9 +11,9 @@
 * -----------------------------------------------------------
 */ 
 
-require_once '../db/ryan_mysql.php';
-require_once '../db/constant.php';
-require_once '../Util.php';
+require_once(dirname(__FILE__) . '/../db/ryan_mysql.php');
+require_once(dirname(__FILE__) . '/../db/constant.php');
+require_once(dirname(__FILE__) . '/../Util.php');
 
 define('BASE_URI', 'http://table.finance.yahoo.com/table.csv?s=');
 

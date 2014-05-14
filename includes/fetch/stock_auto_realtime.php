@@ -12,7 +12,7 @@
 */ 
 
 require_once 'stock_fetch_util.php';
-require_once '../Util.php';
+require_once(dirname(__FILE__) . '/../Util.php');
 
 $conn = new ryan_mysql();
 

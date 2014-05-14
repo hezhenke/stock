@@ -15,7 +15,7 @@
 // http://ichart.yahoo.com/table.csv?s=000001.ss&a=0&b=1&c=2010
 
 require_once 'stock_fetch_util.php';
-require_once '../Util.php';
+require_once(dirname(__FILE__) . '/../Util.php');
 
 $conn = new ryan_mysql();
 
