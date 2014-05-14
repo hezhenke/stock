@@ -11,7 +11,7 @@
 * -----------------------------------------------------------
 */ 
 
-require_once 'db-config.php';
+require(dirname(__FILE__) . '/db-config.php');
 
 backup_db(); // 未成功
 
@@ -40,6 +40,7 @@ function backup_db(){
 		$table=$t[0];
 		$q2=mysql_query("show create table `$table`");
 		$sql=mysql_fetch_array($q2);
+		$mysql.= "DROP TABLE IF EXISTS `$table`".";\r\n";
 		$mysql.=$sql['Create Table'].";\r\n";
 		$q3=mysql_query("select * from `$table`");
 		while($data=mysql_fetch_assoc($q3)){
@@ -55,11 +56,11 @@ function backup_db(){
 		}
 	}
 	
-	$filename="../../resource/data/".$dbname.date('Ymjgi').".sql";  //存放路径，默认存放到项目最外层
+	$filename="../../sql_backup/".$dbname.date('Ymjgi').".sql";  //存放路径，默认存放到项目最外层
 	$fp = fopen($filename,'w');
 	fputs($fp,$mysql);
 	fclose($fp);
-	echo "数据备份成功";
+	log_to_text("数据备份成功");
 }
 
 function recover_db(){
