@@ -18,33 +18,46 @@
  * 	--------------------------------------------------------------------------------------------
  */
 
-// 算涨跌幅，正为涨，负为跌 xg:(c-ref(c,1))/c*100
+/*
+ * Params:两天全数据的数组
+ * Return:涨跌幅
+ * Description：算涨跌幅，正为涨，负为跌 xg:(c-ref(c,1))/c*100
+ * Status:Test Good
+ */
 function cal_percentage($dataArray){
-	$t_close = $dataArray[0];
-	$y_close = $dataArray[1];
+	$t_close = $dataArray[0]['close'];
+	$y_close = $dataArray[1]['close'];
 	
 	$result = ($t_close-$y_close)/$t_close *100;
-	return $result;
+	return round($result,2);
 }
 
-// 是否为阳线	xg:c>o
-function is_line_red($close,$open){
-	if (empty($close) || empty($open)) {
-		return -1;
-	}
+/*
+ * Params:当天全数据的Dic
+ * Return:true为阳或平收，false为阴
+ * Description：是否为阳线	xg:c>o
+ * Status:Test Good
+ */
+function is_line_red($item){
+	$close = $item['close'];
+	$open = $item['open'];
 	
-	if ($close < $open) {
-		return false;
-	}else {
+	if ($close >= $open) {
 		return true;
+	}else {
+		return false;
 	}
 }
 
-// 是否为十字星 xg:abs(c-o)/o<0.01;
-function is_star($close,$open){
-	if (empty($close) || empty($open)) {
-		return -1;
-	}
+/*
+ * Params:当天全数据的Dic
+ * Return:true为十字星，false为否
+ * Description：是否为十字星 xg:abs(c-o)/o<0.01;
+ * Status:Test Good
+ */
+function is_star($item){
+	$close = $item['close'];
+	$open = $item['open'];
 	
 	if (abs($close-$open)/$open<0.01) {
 		return true;
@@ -53,14 +66,49 @@ function is_star($close,$open){
 	}
 }
 
-// 根据传入的数组，算出均线
+/*
+ * Params:当天全数据的Dic
+ * Return:1:正锤子 0:非锤子 -1:倒锤子。注：流行线也算在内
+ * Description：是否为锤子;
+ * Status:Test Good
+ */
+function is_hammer($item){
+	$open = $item['open'];
+	$close = $item['close'];
+	$high = $item['high'];
+	$low = $item['low'];
+
+	$entity = abs($close-$open)==0?0.01:abs($close-$open);
+	$down_shadow = (min(array($open,$close))-$low)==0 ?0.01:(min(array($open,$close))-$low);
+	$up_shadow = ($high - min(array($open,$close)))==0?0.01:($high - min(array($open,$close)));
+	
+	$down_factor = $down_shadow/$entity;
+	$up_factor = $up_shadow/$entity;
+		
+	if ($down_factor > 3 && ($down_factor/$up_factor) > 8) {
+		return 1;
+	}
+		
+	if ($up_factor > 3 && ($up_factor/$down_factor) > 8) {
+		return -1;
+	}
+	
+	return 0;
+}
+
+/*
+ * Params:传入N天的全数据数组
+ * Return:当天的N天均线值
+ * Description：计算N天均线值
+ * Status:Test Good
+ */
 function MA($dataArray){
 	if (is_array($dataArray)) {
 		$count = count($dataArray);
 		$sum = 0;
 		
 		for ($i = 0;$i < $count; $i++){
-			$sum += $dataArray[$i];
+			$sum += $dataArray[$i]['close'];
 		}
 		
 		return $sum/$count;
@@ -70,30 +118,143 @@ function MA($dataArray){
 	}
 }
 
-// 是否为锤子 return 1:正锤子 0:非锤子 -1:倒锤子
-function is_hammer($item){
-	$open = $item['open'];
-	$close = $item['close'];
-	$high = $item['high'];
-	$low = $item['low'];
+/*
+ * Params:传入3天的全数据数组
+ * Return:数组{'true or false','分析','推荐权重'}
+ * Description：否极泰来 1.最低价高于昨日大阴线实体的中间位；2.中阳线应无上影或上影极短；3.不能缩量，要适度放量；4.最高价高于大阴线最高价
+ * Status:TODO--缺少下降途中的判断
+ */
+function reverse_bad_to_good($dataArray){
+	$tempArray = array_slice($dataArray, 1, 2);
+	$y_per = cal_percentage($tempArray);//计算昨天涨跌幅
+
+	$t_detail = $dataArray[0];
+	$y_detail = $dataArray[1];
+
+	$y_close = $y_detail['close'];
+	$y_open = $y_detail['open'];
+	$y_high = $y_detail['high'];
+	$y_volume = $y_detail['volume'];
+	$y_mid = ($y_close+$y_open)/2;
+
+	$t_close = $t_detail['close'];
+	$t_open = $t_detail['open'];
+	$t_high = $t_detail['high'];
+	$t_low = $t_detail['low'];
+	$t_volume = $t_detail['volume'];
+
+	//未跌满5个点以上，或者实体没有到4个点的
+	if ($y_per>-5 || ($y_open-$y_close)*100/$y_close < 4) {
+		return array(false,'',0);
+	}
+
+	// 1.最低价高于昨日大阴线实体的中间位；2.中阳线应无上影或上影极短；3.不能缩量，要适度放量；4.最高价高于大阴线最高价
+	if ($t_low > $y_mid && ($t_high-$t_close)/$t_close<0.003 && $t_volume > $y_volume && $t_high >= $y_high) {
+		$reasonStr = "形成否极泰来";
+		$score = 30;
+
+		return array(true,$reasonStr,$score);
+	}else {
+		return array(false,'',0);
+	}
+}
+
+/*
+ * Params:传入3天的全数据数组
+ * Return:数组{'true or false','分析','推荐权重'}
+ * Description：贯穿形态 1.大阴线后面紧跟一个大阳线；2.大阳的实体深入大阴的中位之上；3.开盘越低，收盘越高，反转可能越大
+ * Status:TODO--缺少下降途中的判断
+ */
+function bottom_cross($dataArray){
+	$tempArray = array_slice($dataArray, 1, 2);
+	$y_per = cal_percentage($tempArray);//计算昨天涨跌幅
 	
-	$entity = abs($close-$open);
-	$down_shadow = min(array($open,$close)) - $low;
-	$up_shadow = $high - min(array($open,$close));
+	$t_detail = $dataArray[0];
+	$y_detail = $dataArray[1];
 	
-	$down_factor = $down_shadow/$entity;
-	$up_factor = $up_shadow/$entity;
+	$y_close = $y_detail['close'];
+	$y_open = $y_detail['open'];
+	$y_mid = ($y_close+$y_open)/2;
 	
+	$t_close = $t_detail['close'];
+	$t_open = $t_detail['open'];
 	
-	if ($down_factor > 3 && ($down_factor/$up_factor) > 10) {
-		return 1;
+	//未跌满5个点以上，或者实体没有到4个点的
+	if ($y_per>-5 || ($y_open-$y_close)*100/$y_close < 4) {
+		return array(false,'',0);
 	}
 	
-	if ($up_factor > 3 && ($up_factor/$down_factor) > 10) {
-		return -1;
+	if ($t_close > $y_mid && $t_close < $y_open) {
+		$reasonStr = "形成贯穿形态";
+		$score = 10;
+
+		$temp_per = round(($t_open-$y_close)*100/$y_close,2); // 是否低开1%以上
+		if ($temp_per <= -1) {
+			$score += 5;
+			$reasonStr .= "，且低开".abs($temp_per).'%';
+		}
+		
+		$temp_per = round(($y_open-$t_close)*100/$y_close,2); // 收盘是否离大阴线上沿很近
+		if ($temp_per < 2) {
+			$score += 10;
+			$reasonStr .= ",最终收盘离昨日开盘价差".$temp_per.'%';
+		}
+		
+		return array(true,$reasonStr,$score);
+	}else {
+		return array(false,'',0);
 	}
+}
+
+/*
+ * Params:传入3天的全数据数组
+* Return:数组{'true or false','分析','推荐权重'}
+* Description：多头吞噬 1.阳线吃掉昨日阴线的所有实体；2.强度与阳线有关，最好是连阴线的阴线也一起吞噬。多头吞噬强于贯穿形态
+* Status:TODO--缺少下降途中的判断
+*/
+function red_eat_green($dataArray){
+	$tempArray = array_slice($dataArray, 1, 2);
+	$y_per = cal_percentage($tempArray);//计算昨天涨跌幅
+	$t_per = cal_percentage($dataArray);//计算今日涨跌幅
 	
-	return 0;
+	if ($y_per<0 && $t_per>2){
+		
+		$t_detail = $dataArray[0];
+		$y_detail = $dataArray[1];
+		
+		$y_close = $y_detail['close'];
+		$y_open = $y_detail['open'];
+		$y_high = $y_detail['high'];
+		$y_low = $y_detail['low'];
+		
+		$t_close = $t_detail['close'];
+		$t_open = $t_detail['open'];
+		
+		if ($t_close>$y_open && $t_open<$y_close) {
+			$reasonStr = "形成多头吞噬形态";
+			$score = 25;
+			
+			if ($t_open<$y_low) {
+				$score += 5;
+				
+			}
+			
+			if ($t_close>$y_high){
+				$score += 10;
+				$reasonStr .= ",吞噬了下影线";
+			}
+			
+			if ($score == 40) {
+				$reasonStr .= ",并呈现吞噬所有影线的完美状态";
+			}
+			
+			return array(true,$reasonStr,$score);
+		}else {
+			return array(false,'',0);
+		}
+	}else {
+		return array(false,'',0);
+	}
 }
 
 /*	============================================================================================
