@@ -1,4 +1,7 @@
 <?php
+
+phpinfo();
+/*
 	header("Content-Type: text/html; charset=utf-8");
 
 	require_once 'includes/db/ryan_mysql.php';
@@ -10,3 +13,4 @@
 	foreach ($result as $item){
 		var_dump($item);
 	}
+	*/
