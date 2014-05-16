@@ -87,7 +87,7 @@ if ($result) {
 		}
 		*/
 		
-		/*
+		/* 测试是否十字星
 		if ($detail) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$is_star = is_star($detail[0]);
@@ -101,7 +101,7 @@ if ($result) {
 		}
 		*/
 		
-		/*
+		/* 测试是否为锤子
 		if ($detail) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$is_hammer = is_hammer($detail[0]);
@@ -122,7 +122,7 @@ if ($result) {
 		}
 		*/
 		
-		/*
+		/* 贯穿形态
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = bottom_cross($detail);
@@ -139,6 +139,7 @@ if ($result) {
 		}
 		*/
 		
+		/* 否极泰来
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = reverse_bad_to_good($detail);
@@ -153,9 +154,39 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
+		*/
+		 
+		/* 长下影
+		if ($detail && count($detail)>=3) {
+			if ($detail[0]['date'] == date("Y-m-d")) {
+				$resultArray = long_down_shadow($detail);
 		
+				if ($resultArray[0]) {
+					print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
+				}
+				//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n");
+			}else {
+				//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
+			}
+		}else {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
+		}
+		*/
 		
+		if ($detail && count($detail)>=3) {
+			if ($detail[0]['date'] == date("Y-m-d")) {
+				$resultArray = red_eat_green($detail);
 		
+				if ($resultArray[0]) {
+					print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
+				}
+				//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n");
+			}else {
+				//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
+			}
+		}else {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
+		}
 	}
 }
 
