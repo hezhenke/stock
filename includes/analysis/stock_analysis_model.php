@@ -45,8 +45,6 @@ require_once 'stock_analysis_util.php';
  * ======================================================================================================================================================
  */
 
-
-
 $conn = new ryan_mysql();
 
 $sql = 'SELECT * FROM corp_codes';
@@ -57,7 +55,7 @@ if ($result) {
 		$code = $corp['code'];
 		$table_name = $code;
 		
-		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 4';//倒数2天的交易记录
+		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数2天的交易记录
 		$detail = $conn->getAll($sql);
 		
 		/*  测试计算涨跌幅
@@ -122,7 +120,8 @@ if ($result) {
 		}
 		*/
 		
-		/* 贯穿形态
+		
+		//贯穿形态
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = bottom_cross($detail);
@@ -137,9 +136,8 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
-		*/
 		
-		/* 否极泰来
+		//否极泰来
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = reverse_bad_to_good($detail);
@@ -154,9 +152,8 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
-		*/
-		 
-		/* 长下影
+		
+		//长下影
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = long_down_shadow($detail);
@@ -171,8 +168,8 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
-		*/
 		
+		// 多头吞噬
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = red_eat_green($detail);
@@ -187,6 +184,7 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
+		
 	}
 }
 
