@@ -12,6 +12,7 @@
 */ 
 
 require(dirname(__FILE__) . '/db-config.php');
+require(dirname(__FILE__) . '/../Util.php');
 
 backup_db(); // 未成功
 
