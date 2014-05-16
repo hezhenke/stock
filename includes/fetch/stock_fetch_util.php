@@ -27,7 +27,7 @@ function set_corp_data_into_db($code){
 	$file_name = '';
 
 	if (strlen($code) != 6) {
-		die("stock code error \n");
+		print_r("stock code error \n");
 	}
 
 	if (substr($code, 0, 1) == "6") {
@@ -37,7 +37,7 @@ function set_corp_data_into_db($code){
 		$file_path = $file_folder.'sz/sz';
 		print_r("shenzhen stock \n");
 	}else {
-		die("stock code error \n");
+		print_r("stock code error \n");
 	}
 
 	$file_name = $file_path.$code.'.csv';
@@ -127,7 +127,7 @@ function set_corp_data_into_db($code){
 		return $isSuccess;
 	}else {
 		return false;
-		die("can not open csv file, PLZ check!\n");
+		print_r("can not open csv file, PLZ check!\n");
 	}
 }
 
@@ -146,7 +146,7 @@ function down_csv($code){
 		$file = ROOT_PATH.'resource/sz/sz'.$code.'.csv';
 		print_r("shenzhen stock \n");
 	}else {
-		die("error stock code\n");
+		print_r("error stock code\n");
 	}
 
 	//从
@@ -201,7 +201,7 @@ function set_realtime_data_into_db($code){
 
 	// 判断是否code输入有误
 	if (empty($rawData)) {
-		exit("代码输入有误，或已退市\n");
+		print_r("代码输入有误，或已退市\n");
 	}
 
 	/*
@@ -452,7 +452,7 @@ function set_corp_list_into_db_from_csv($filename){
 	$file_name = $file_path.$filename.'.csv';
 
 	if (!file_exists($file_name)) {
-		die("file do not exist \n");
+		print_r("file do not exist \n");
 	}
 
 	if ($file = fopen($file_name, "r")) {
