@@ -202,6 +202,7 @@ function set_realtime_data_into_db($code){
 	// 判断是否code输入有误
 	if (empty($rawData)) {
 		print_r("代码输入有误，或已退市\n");
+		return ;
 	}
 
 	/*
