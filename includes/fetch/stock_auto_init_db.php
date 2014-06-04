@@ -1,15 +1,15 @@
 <?php
-/**   
-* 
+/**
+*
 * ===========================================
 * @Author Ryan
 * @Filename: stock_auto_init_db.php
-* @Description: (用一句话描述该文件做什么) 
-* @Creation 2014-5-8 下午1:58:36 
-* @Modify 
-* @version V1.0   
+* @Description: 初始化数据库
+* @Creation 2014-5-8 下午1:58:36
+* @Modify
+* @version V1.0
 * -----------------------------------------------------------
-*/ 
+*/
 
 // http://download.finance.yahoo.com/d/quotes.csv?s=600320.ss&f=sl1d1t1c1ohgv&e=.csv
 // http://ichart.yahoo.com/table.csv?s=000001.ss&a=0&b=1&c=2010
@@ -32,7 +32,7 @@ if ($result) {
 		if (substr($code, 0, 3) == '002') {
 			$success = false;
 			$count = 0;
-				
+
 			while (!$success && $count < 10){
 				down_csv($code);
 				print_r($code." csv download success\n");
@@ -40,23 +40,23 @@ if ($result) {
 				print_r($code." init db success\n");
 				$count++;
 			}
-				
+
 			if (!$success) {
 				log_to_text('corp code: '.$code.' set data into db failed');
 			}
 		}
-		
+
 		/*
 		if (substr($code, 0, 3) == '000') {
-		
+
 		}else if (substr($code, 0, 3) == '002') {
 
 		}else if (substr($code, 0, 3) == '300') {
-			
+
 		}else if (substr($code, 0, 3) == '600' && intval(substr($code, 3, 3)) > 317) {
 			$success = false;
 			$count = 0;
-				
+
 			while (!$success && $count < 10){
 				down_csv($code);
 				print_r($code." csv download success\n");
@@ -64,15 +64,15 @@ if ($result) {
 				print_r($code." init db success\n");
 				$count++;
 			}
-				
+
 			if (!$success) {
 				log_to_text('corp code: '.$code.' set data into db failed');
 			}
 		}else {
-			
+
 			$success = false;
 			$count = 0;
-			
+
 			while (!$success && $count < 10){
 				down_csv($code);
 				print_r($code." csv download success\n");
@@ -80,11 +80,11 @@ if ($result) {
 				print_r($code." init db success\n");
 				$count++;
 			}
-			
+
 			if (!$success) {
 				log_to_text('corp code: '.$code.' set data into db failed');
 			}
-			
+
 		}
 		*/
 	}
