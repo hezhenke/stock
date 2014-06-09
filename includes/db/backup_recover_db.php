@@ -1,20 +1,20 @@
 <?php
-/**   
-* 
+/**
+*
 * ===========================================
 * @Author Ryan
 * @Filename: back_recover_db.php
-* @Description: 备份，还原数据库 
-* @Creation 2014-5-9 上午11:46:05 
-* @Modify 
-* @version V1.0   
+* @Description: 备份，还原数据库
+* @Creation 2014-5-9 上午11:46:05
+* @Modify
+* @version V1.0
 * -----------------------------------------------------------
-*/ 
+*/
 
 require(dirname(__FILE__) . '/db-config.php');
 require(dirname(__FILE__) . '/../Util.php');
 
-backup_db(); // 未成功
+backup_db();
 
 function backup_db(){
 	//备份数据库
@@ -56,7 +56,7 @@ function backup_db(){
 			$mysql.="insert into `$table`($keys) values($vals);\r\n";
 		}
 	}
-	
+
 	$filename="../../sql_backup/".$dbname.date('Ymjgi').".sql";  //存放路径，默认存放到项目最外层
 	$fp = fopen($filename,'w');
 	fputs($fp,$mysql);
@@ -115,5 +115,5 @@ function recover_db(){
 		}else{
 		echo "MySQL备份文件不存在，请检查文件路径是否正确！";
   }
- }	
+ }
 }

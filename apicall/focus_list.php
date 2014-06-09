@@ -24,6 +24,16 @@ if ('focus_list'==strtolower(trim($_REQUEST['m']))){
 	$corp_code = $_SAFEREQUEST['code'];
 	$act = $_SAFEREQUEST['act'];
 
+	if (!isset($act)) {
+		data_back(array(),$m,API_PARAM_MISSING);
+	}
+
+	if ($act == '1' || $act == '3'){
+		if (!isset($corp_code)) {
+			data_back(array(),$m,API_PARAM_MISSING);
+		}
+	}
+
 	if ($act == '0') {
 		$sql = 'select * from '.$table_name;
 	}elseif ($act == '1'){
@@ -36,10 +46,6 @@ if ('focus_list'==strtolower(trim($_REQUEST['m']))){
 		data_back(array(),$m,API_PARAM_MISSING);
 	}
 
-//	$sql = 'select * from '.$table_name.' where invite_code="'.$invite_code.'"';
-
-
-//	$item = $conn->getRow($sql);
 	$item = $conn->getAll($sql);
 
 	if ($item) {

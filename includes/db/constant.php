@@ -27,5 +27,5 @@ define('API_IP_BLOCK'    , 13);      //
 define('API_SIGN_ERR'    , 14);      //签名错误
 
 
-$valid_api = array('login','getlocation','upload_location','push_test','focus_list');
+$valid_api = array('login','getlocation','upload_location','push_test','focus_list','device_token');
 ?>

@@ -1,15 +1,15 @@
 <?php
-/**   
-* 
+/**
+*
 * ===========================================
 * @Author Ryan
 * @Filename: stock_analysis_model.php
 * @Description: 分析模型
-* @Creation 2014-4-25 下午2:45:59 
-* @Modify 
-* @version V1.0   
+* @Creation 2014-4-25 下午2:45:59
+* @Modify
+* @version V1.0
 * -----------------------------------------------------------
-*/ 
+*/
 
 require_once(dirname(__FILE__) . '/../db/ryan_mysql.php');
 require_once 'stock_analysis_util.php';
@@ -54,10 +54,10 @@ if ($result) {
 		$stock_name = $corp['name'];
 		$code = $corp['code'];
 		$table_name = $code;
-		
-		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数2天的交易记录
+
+		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数6天的交易记录
 		$detail = $conn->getAll($sql);
-		
+
 		/*  测试计算涨跌幅
 		if ($detail && count($detail) >= 2) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
@@ -70,7 +70,7 @@ if ($result) {
 			print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
 		*/
-		
+
 		/* 测试是否收阳
 		if ($detail) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
@@ -84,7 +84,7 @@ if ($result) {
 			print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
 		*/
-		
+
 		/* 测试是否十字星
 		if ($detail) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
@@ -98,7 +98,7 @@ if ($result) {
 			print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
 		*/
-		
+
 		/* 测试是否为锤子
 		if ($detail) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
@@ -110,7 +110,7 @@ if ($result) {
 				}elseif ($is_hammer == -1){
 					$str = '倒锤子';
 				}
-				
+
 				print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n今日为".$str."\n");
 			}else {
 				print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
@@ -119,13 +119,13 @@ if ($result) {
 			print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
 		*/
-		
-		
+
+
 		//贯穿形态
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = bottom_cross($detail);
-				
+
 				if ($resultArray[0]) {
 					print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
 				}
@@ -136,12 +136,12 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
-		
+
 		//否极泰来
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = reverse_bad_to_good($detail);
-		
+
 				if ($resultArray[0]) {
 					print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
 				}
@@ -152,12 +152,12 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
-		
+
 		//长下影
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = long_down_shadow($detail);
-		
+
 				if ($resultArray[0]) {
 					print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
 				}
@@ -168,12 +168,12 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
-		
+
 		// 多头吞噬
 		if ($detail && count($detail)>=3) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = red_eat_green($detail);
-		
+
 				if ($resultArray[0]) {
 					print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
 				}
@@ -184,7 +184,7 @@ if ($result) {
 		}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 		}
-		
+
 	}
 }
 
