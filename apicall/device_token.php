@@ -7,10 +7,12 @@
   * @Description: 上传device_token
   * @Creation 2014-6-9 下午12:10:29
   * @Modify
-  * 接口参数：	token:device_token
   * @version V1.0
+  *
+  * 接口参数：	token:device_token
+  *
   * -----------------------------------------------------------
-*/
+  */
 
 if ('device_token'==strtolower(trim($_REQUEST['m']))){
 	$m = strtolower(trim($_SAFEREQUEST['m']));

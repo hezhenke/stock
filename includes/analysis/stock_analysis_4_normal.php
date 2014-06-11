@@ -12,6 +12,7 @@
 */
 
 require_once(dirname(__FILE__) . '/../db/ryan_mysql.php');
+require_once(dirname(__FILE__) . '/../../push/push_service.php');
 require_once 'stock_analysis_util.php';
 
 $conn = new ryan_mysql();
@@ -60,6 +61,8 @@ if ($result) {
 			$conn->query($sql);
 		}
 	}
+
+	push_noti("推荐分析已完成~~");
 }
 
 $conn->close();

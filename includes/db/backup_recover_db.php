@@ -13,6 +13,7 @@
 
 require(dirname(__FILE__) . '/db-config.php');
 require(dirname(__FILE__) . '/../Util.php');
+require(dirname(__FILE__) . '/../../push/push_service.php');
 
 backup_db();
 
@@ -62,6 +63,8 @@ function backup_db(){
 	fputs($fp,$mysql);
 	fclose($fp);
 	log_to_text("数据备份成功");
+
+	push_noti("数据备份成功");
 }
 
 function recover_db(){
