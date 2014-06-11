@@ -1,20 +1,20 @@
 <?php
-/**   
-* 
+/**
+*
 * ===========================================
 * @Author Ryan
 * @Filename: stock_analysis_util.php
-* @Description: 初级处理数据工具，如计算KDJ，BOLL等 
-* @Creation 2014-5-7 下午1:02:47 
-* @Modify 
-* @version V1.0   
+* @Description: 初级处理数据工具，如计算KDJ，BOLL等
+* @Creation 2014-5-7 下午1:02:47
+* @Modify
+* @version V1.0
 * -----------------------------------------------------------
-*/ 
+*/
 
 /*	============================================================================================
- * 
+ *
  * 	基本函数
- * 
+ *
  * 	--------------------------------------------------------------------------------------------
  */
 
@@ -27,8 +27,8 @@
 function cal_percentage($dataArray){
 	$t_close = $dataArray[0]['close'];
 	$y_close = $dataArray[1]['close'];
-	
-	$result = ($t_close-$y_close)/$t_close *100;
+
+	$result = ($t_close-$y_close)/$y_close *100;
 	return round($result,2);
 }
 
@@ -41,7 +41,7 @@ function cal_percentage($dataArray){
 function is_line_red($item){
 	$close = $item['close'];
 	$open = $item['open'];
-	
+
 	if ($close >= $open) {
 		return true;
 	}else {
@@ -58,7 +58,7 @@ function is_line_red($item){
 function is_star($item){
 	$close = $item['close'];
 	$open = $item['open'];
-	
+
 	if (abs($close-$open)/$open<0.01) {
 		return true;
 	}else {
@@ -81,18 +81,18 @@ function is_hammer($item){
 	$entity = abs($close-$open)==0?0.01:abs($close-$open);
 	$down_shadow = (min(array($open,$close))-$low)==0 ?0.01:(min(array($open,$close))-$low);
 	$up_shadow = ($high - min(array($open,$close)))==0?0.01:($high - min(array($open,$close)));
-	
+
 	$down_factor = $down_shadow/$entity;
 	$up_factor = $up_shadow/$entity;
-		
+
 	if ($down_factor > 3 && ($down_factor/$up_factor) > 8) {
 		return 1;
 	}
-		
+
 	if ($up_factor > 3 && ($up_factor/$down_factor) > 8) {
 		return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -106,13 +106,13 @@ function MA($dataArray){
 	if (is_array($dataArray)) {
 		$count = count($dataArray);
 		$sum = 0;
-		
+
 		for ($i = 0;$i < $count; $i++){
 			$sum += $dataArray[$i]['close'];
 		}
-		
+
 		return $sum/$count;
-		
+
 	}else {
 		return 0;
 	}
@@ -124,63 +124,122 @@ function MA($dataArray){
  * Description：下降途中收长下影
  * Status:Test Good
  */
-function long_down_shadow($dataArray){	
+function long_down_shadow_4_focus($dataArray){
 	if (count($dataArray) < 6) {
-		return array(false,'',0);
+		return array(false,0,'');
 	}
-	
+
 	$tempArray = array_slice($dataArray, 1, 2);
 	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
-	
+
 	$tempArray = array_slice($dataArray, 2, 2);
 	$y_per_2 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 3, 2);
 	$y_per_3 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 4, 2);
 	$y_per_4 = cal_percentage($tempArray);
-	
-	$tempArray = array_slice($dataArray, 5, 2);
-	$y_per_5 = cal_percentage($tempArray);
-	
-	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4+$y_per_5)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8) {
+
+	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 		$t_detail = $dataArray[0];
 		$y_detail = $dataArray[1];
-		
+
 		$y_close = $y_detail['close'];
 		$y_open = $y_detail['open'];
 		$y_high = $y_detail['high'];
 		$y_volume = $y_detail['volume'];
 		$y_mid = ($y_close+$y_open)/2;
-		
+
 		$t_close = $t_detail['close'];
 		$t_open = $t_detail['open'];
 		$t_high = $t_detail['high'];
 		$t_low = $t_detail['low'];
 		$t_volume = $t_detail['volume'];
-		
+
 		$down_shadow = (min(array($t_open,$t_close))-$t_low)==0 ?0.01:(min(array($t_open,$t_close))-$t_low);
-		
+
 		if ($t_high == $t_close) {
-			return array(false,'',0);
+			return array(false,0,'');
 		}
-		
+
 		// 收长下影，并且幅度大于8
 		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$t_close>8 && $y_per_1<0){
 			$reasonStr = "收出长下影";
 			$score = 10;
-		
+
 			if ($down_shadow/($t_high-$t_low)>0.8) {
 				$reasonStr .= ",并且下影子很长";
 				$score += 10;
 			}
-		
-			return array(true,$reasonStr,$score);
+
+			return array(true,$score,$reasonStr);
 		}
 	}
-	
-	return array(false,'',0);
+
+	return array(false,0,'');
+}
+
+/*
+ * Params:传入6天的全数据数组
+* Return:数组{'true or false','分析','推荐权重'}
+* Description：下降途中收长下影
+* Status:Test Good
+*/
+function long_down_shadow_4_normal($dataArray){
+	if (count($dataArray) < 6) {
+		return array(false,0,'');
+	}
+
+	$tempArray = array_slice($dataArray, 1, 2);
+	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
+
+	$tempArray = array_slice($dataArray, 2, 2);
+	$y_per_2 = cal_percentage($tempArray);
+
+	$tempArray = array_slice($dataArray, 3, 2);
+	$y_per_3 = cal_percentage($tempArray);
+
+	$tempArray = array_slice($dataArray, 4, 2);
+	$y_per_4 = cal_percentage($tempArray);
+
+	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
+		$t_detail = $dataArray[0];
+		$y_detail = $dataArray[1];
+
+		$y_close = $y_detail['close'];
+		$y_open = $y_detail['open'];
+		$y_high = $y_detail['high'];
+		$y_volume = $y_detail['volume'];
+		$y_mid = ($y_close+$y_open)/2;
+
+		$t_close = $t_detail['close'];
+		$t_open = $t_detail['open'];
+		$t_high = $t_detail['high'];
+		$t_low = $t_detail['low'];
+		$t_volume = $t_detail['volume'];
+
+		$down_shadow = (min(array($t_open,$t_close))-$t_low)==0 ?0.01:(min(array($t_open,$t_close))-$t_low);
+
+		if ($t_high == $t_close) {
+			return array(false,0,'');
+		}
+
+		// 收长下影，并且幅度大于8
+		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$t_close>8 && $y_per_1<0){
+			$reasonStr = "收出长下影";
+			$score = 10;
+
+			if ($down_shadow/($t_high-$t_low)>0.8) {
+				$reasonStr .= ",并且下影子很长";
+				$score += 10;
+			}
+
+			return array(true,$score,$reasonStr);
+		}
+	}
+
+	return array(false,0,'');
 }
 
 /*
@@ -191,56 +250,53 @@ function long_down_shadow($dataArray){
  */
 function reverse_bad_to_good($dataArray){
 	if (count($dataArray) < 6) {
-		return array(false,'',0);
+		return array(false,0,'');
 	}
-	
+
 	$tempArray = array_slice($dataArray, 1, 2);
 	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
-	
+
 	$tempArray = array_slice($dataArray, 2, 2);
 	$y_per_2 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 3, 2);
 	$y_per_3 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 4, 2);
 	$y_per_4 = cal_percentage($tempArray);
-	
-	$tempArray = array_slice($dataArray, 5, 2);
-	$y_per_5 = cal_percentage($tempArray);
-	
-	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4+$y_per_5)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8) {
+
+	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 
 		$t_detail = $dataArray[0];
 		$y_detail = $dataArray[1];
-	
+
 		$y_close = $y_detail['close'];
 		$y_open = $y_detail['open'];
 		$y_high = $y_detail['high'];
 		$y_volume = $y_detail['volume'];
 		$y_mid = ($y_close+$y_open)/2;
-	
+
 		$t_close = $t_detail['close'];
 		$t_open = $t_detail['open'];
 		$t_high = $t_detail['high'];
 		$t_low = $t_detail['low'];
 		$t_volume = $t_detail['volume'];
-	
+
 		//未跌满5个点以上，或者实体没有到4个点的
 		if ($y_per_1>-5 || ($y_open-$y_close)*100/$y_close < 4) {
-			return array(false,'',0);
+			return array(false,0,'');
 		}
-	
+
 		// 1.最低价高于昨日大阴线实体的中间位；2.中阳线应无上影或上影极短；3.不能缩量，要适度放量；4.最高价高于大阴线最高价
 		if ($t_low > $y_mid && ($t_high-$t_close)/$t_close<0.003 && $t_volume > $y_volume && $t_high >= $y_high) {
 			$reasonStr = "形成否极泰来";
 			$score = 30;
-	
-			return array(true,$reasonStr,$score);
+
+			return array(true,$score,$reasonStr);
 		}
 	}
-	
-	return array(false,'',0);
+
+	return array(false,0,'');
 }
 
 /*
@@ -249,64 +305,126 @@ function reverse_bad_to_good($dataArray){
  * Description：贯穿形态 1.大阴线后面紧跟一个大阳线；2.大阳的实体深入大阴的中位之上；3.开盘越低，收盘越高，反转可能越大
  * Status:Test Good
  */
-function bottom_cross($dataArray){
+function bottom_cross_4_focus($dataArray){
 	if (count($dataArray) < 6) {
-		return array(false,'',0);
+		return array(false,0,'');
 	}
-	
+
 	$tempArray = array_slice($dataArray, 1, 2);
 	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
-	
+
 	$tempArray = array_slice($dataArray, 2, 2);
 	$y_per_2 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 3, 2);
 	$y_per_3 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 4, 2);
 	$y_per_4 = cal_percentage($tempArray);
-	
-	$tempArray = array_slice($dataArray, 5, 2);
-	$y_per_5 = cal_percentage($tempArray);
-	
-	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4+$y_per_5)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8) {
-	
+
+
+	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3)<-8 || ($y_per_1+$y_per_2)<-8) {
+
 		$t_detail = $dataArray[0];
 		$y_detail = $dataArray[1];
-		
+
 		$y_close = $y_detail['close'];
 		$y_open = $y_detail['open'];
 		$y_mid = ($y_close+$y_open)/2;
-		
+
 		$t_close = $t_detail['close'];
 		$t_open = $t_detail['open'];
-		
+
 		//未跌满5个点以上，或者实体没有到4个点的
-		if ($y_per_1>-5 || ($y_open-$y_close)*100/$y_close < 4) {
-			return array(false,'',0);
+		if ($y_per_1>-4 || ($y_open-$y_close)*100/$y_close < 2 || $t_open > $y_close) {
+			return array(false,0,'');
 		}
-		
+
 		if ($t_close > $y_mid && $t_close < $y_open) {
 			$reasonStr = "形成贯穿形态";
 			$score = 10;
-	
+
 			$temp_per = round(($t_open-$y_close)*100/$y_close,2); // 是否低开1%以上
 			if ($temp_per <= -1) {
 				$score += 5;
 				$reasonStr .= "，且低开".abs($temp_per).'%';
 			}
-			
+
 			$temp_per = round(($y_open-$t_close)*100/$y_close,2); // 收盘是否离大阴线上沿很近
 			if ($temp_per < 2) {
 				$score += 10;
 				$reasonStr .= ",最终收盘离昨日开盘价差".$temp_per.'%';
 			}
-			
-			return array(true,$reasonStr,$score);
+
+			return array(true,$score,$reasonStr);
 		}
 	}
-	
-	return array(false,'',0);
+
+	return array(false,0,'');
+}
+
+/*
+ * Params:传入6天的全数据数组
+* Return:数组{'true or false','分析','推荐权重'}
+* Description：贯穿形态 1.大阴线后面紧跟一个大阳线；2.大阳的实体深入大阴的中位之上；3.开盘越低，收盘越高，反转可能越大
+* Status:Test Good
+*/
+function bottom_cross_4_normal($dataArray){
+	if (count($dataArray) < 6) {
+		return array(false,0,'');
+	}
+
+	$tempArray = array_slice($dataArray, 1, 2);
+	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
+
+	$tempArray = array_slice($dataArray, 2, 2);
+	$y_per_2 = cal_percentage($tempArray);
+
+	$tempArray = array_slice($dataArray, 3, 2);
+	$y_per_3 = cal_percentage($tempArray);
+
+	$tempArray = array_slice($dataArray, 4, 2);
+	$y_per_4 = cal_percentage($tempArray);
+
+
+	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3)<-8 || ($y_per_1+$y_per_2)<-8) {
+
+		$t_detail = $dataArray[0];
+		$y_detail = $dataArray[1];
+
+		$y_close = $y_detail['close'];
+		$y_open = $y_detail['open'];
+		$y_mid = ($y_close+$y_open)/2;
+
+		$t_close = $t_detail['close'];
+		$t_open = $t_detail['open'];
+
+		//未跌满5个点以上，或者实体没有到4个点的
+		if ($y_per_1>-4 || ($y_open-$y_close)*100/$y_close < 2 || $t_open > $y_close) {
+			return array(false,0,'');
+		}
+
+		if ($t_close > $y_mid && $t_close < $y_open) {
+			$reasonStr = "形成贯穿形态";
+			$score = 10;
+
+			$temp_per = round(($t_open-$y_close)*100/$y_close,2); // 是否低开1%以上
+			if ($temp_per <= -1) {
+				$score += 5;
+				$reasonStr .= "，且低开".abs($temp_per).'%';
+			}
+
+			$temp_per = round(($y_open-$t_close)*100/$y_close,2); // 收盘是否离大阴线上沿很近
+			if ($temp_per < 2) {
+				$score += 10;
+				$reasonStr .= ",最终收盘离昨日开盘价差".$temp_per.'%';
+			}
+
+			return array(true,$score,$reasonStr);
+		}
+	}
+
+	return array(false,0,'');
 }
 
 /*
@@ -315,66 +433,128 @@ function bottom_cross($dataArray){
  * Description：多头吞噬 1.阳线吃掉昨日阴线的所有实体；2.强度与阳线有关，最好是连阴线的阴线也一起吞噬。多头吞噬强于贯穿形态
  * Status:Test Good
  */
-function red_eat_green($dataArray){
+function red_eat_green_4_focus($dataArray){
 	if (count($dataArray) < 6) {
-		return array(false,'',0);
+		return array(false,0,'');
 	}
-	
+
 	$tempArray = array_slice($dataArray, 1, 2);
 	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
-	
+
 	$tempArray = array_slice($dataArray, 2, 2);
 	$y_per_2 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 3, 2);
 	$y_per_3 = cal_percentage($tempArray);
-	
+
 	$tempArray = array_slice($dataArray, 4, 2);
 	$y_per_4 = cal_percentage($tempArray);
-	
-	$tempArray = array_slice($dataArray, 5, 2);
-	$y_per_5 = cal_percentage($tempArray);
-	
-	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4+$y_per_5)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8) {
+
+	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 		$t_per = cal_percentage($dataArray);//计算今日涨跌幅
-	
+
 		if ($y_per_1<0 && $t_per>2){
-			
+
 			$t_detail = $dataArray[0];
 			$y_detail = $dataArray[1];
-			
+
 			$y_close = $y_detail['close'];
 			$y_open = $y_detail['open'];
 			$y_high = $y_detail['high'];
 			$y_low = $y_detail['low'];
-			
+
 			$t_close = $t_detail['close'];
 			$t_open = $t_detail['open'];
-			
+
 			if ($t_close>$y_open && $t_open<$y_close) {
 				$reasonStr = "形成多头吞噬形态";
 				$score = 25;
-				
+
 				if ($t_open<$y_low) {
 					$score += 5;
-					
+
 				}
-				
+
 				if ($t_close>$y_high){
 					$score += 10;
 					$reasonStr .= ",吞噬了下影线";
 				}
-				
+
 				if ($score == 40) {
 					$reasonStr .= ",并呈现吞噬所有影线的完美状态";
 				}
-				
-				return array(true,$reasonStr,$score);
+
+				return array(true,$score,$reasonStr);
 			}
 		}
 	}
-	
-	return array(false,'',0);
+
+	return array(false,0,'');
+}
+
+/*
+ * Params:传入6天的全数据数组
+* Return:数组{'true or false','分析','推荐权重'}
+* Description：多头吞噬 1.阳线吃掉昨日阴线的所有实体；2.强度与阳线有关，最好是连阴线的阴线也一起吞噬。多头吞噬强于贯穿形态
+* Status:Test Good
+*/
+function red_eat_green_4_normal($dataArray){
+	if (count($dataArray) < 6) {
+		return array(false,0,'');
+	}
+
+	$tempArray = array_slice($dataArray, 1, 2);
+	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
+
+	$tempArray = array_slice($dataArray, 2, 2);
+	$y_per_2 = cal_percentage($tempArray);
+
+	$tempArray = array_slice($dataArray, 3, 2);
+	$y_per_3 = cal_percentage($tempArray);
+
+	$tempArray = array_slice($dataArray, 4, 2);
+	$y_per_4 = cal_percentage($tempArray);
+
+	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
+		$t_per = cal_percentage($dataArray);//计算今日涨跌幅
+
+		if ($y_per_1<0 && $t_per>2){
+
+			$t_detail = $dataArray[0];
+			$y_detail = $dataArray[1];
+
+			$y_close = $y_detail['close'];
+			$y_open = $y_detail['open'];
+			$y_high = $y_detail['high'];
+			$y_low = $y_detail['low'];
+
+			$t_close = $t_detail['close'];
+			$t_open = $t_detail['open'];
+
+			if ($t_close>$y_open && $t_open<$y_close) {
+				$reasonStr = "形成多头吞噬形态";
+				$score = 25;
+
+				if ($t_open<$y_low) {
+					$score += 5;
+
+				}
+
+				if ($t_close>$y_high){
+					$score += 10;
+					$reasonStr .= ",吞噬了下影线";
+				}
+
+				if ($score == 40) {
+					$reasonStr .= ",并呈现吞噬所有影线的完美状态";
+				}
+
+				return array(true,$score,$reasonStr);
+			}
+		}
+	}
+
+	return array(false,0,'');
 }
 
 /*
@@ -385,7 +565,7 @@ function red_eat_green($dataArray){
  */
 function green_star_red($dataArray){
 	if (count($dataArray) < 7) {
-		return array(false,'',0);
+		return array(false,0,'');
 	}
 
 	$tempArray = array_slice($dataArray, 1, 2);
@@ -400,31 +580,25 @@ function green_star_red($dataArray){
 	$tempArray = array_slice($dataArray, 4, 2);
 	$y_per_4 = cal_percentage($tempArray);
 
-	$tempArray = array_slice($dataArray, 5, 2);
-	$y_per_5 = cal_percentage($tempArray);
-	
-	$tempArray = array_slice($dataArray, 6, 2);
-	$y_per_6 = cal_percentage($tempArray);
-
-	if (($y_per_6+$y_per_2+$y_per_3+$y_per_4+$y_per_5)<-8 || ($y_per_4+$y_per_2+$y_per_3) < -8) {
+	if (($y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_4+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 
 		$t_detail = $dataArray[0];
 		$y_detail = $dataArray[1];
-		
+
 		if (is_star($y_detail) && cal_percentage($dataArray) > 1.5) {
 			$reasonStr = "形成买点信号";
 			$score = 10;
-			
+
 			if (cal_percentage($dataArray) > 3) {
 				$score += 5;
 			}
-			
-			return array(true,$reasonStr,$score);
-			
+
+			return array(true,$score,$reasonStr);
+
 		}
 	}
 
-	return array(false,'',0);
+	return array(false,0,'');
 }
 
 /*	============================================================================================
@@ -440,7 +614,7 @@ function green_to_red($dataArray){
 	$t_close = $dataArray[0]['close'];
 	$y_open = $dataArray[1]['open'];
 	$y_close = $dataArray[1]['close'];
-	
+
 	if ($y_close<$y_open && $t_close>$t_open) {
 		return true;
 	}else{
@@ -453,7 +627,7 @@ function up_cross($dataArray){
 	$t_close = $dataArray[0]['close'];
 	$y_close = $dataArray[1]['close'];
 	$ma = MA($dataArray);
-	
+
 	if ($y_close<$ma && $t_close>$ma) {
 		return true;
 	}else{
@@ -466,7 +640,7 @@ function down_cross($dataArray){
 	$t_close = $dataArray[0]['close'];
 	$y_close = $dataArray[1]['close'];
 	$ma = MA($dataArray);
-	
+
 	if ($y_close>$ma && $t_close<$ma) {
 		return true;
 	}else{
@@ -486,7 +660,7 @@ function down_cross($dataArray){
 
 
 /*
- * 
+ *
  *基本教程：
 ----------------------------------------
 1. 概念
@@ -511,7 +685,7 @@ A线，B线交叉: cross(A,B)
 计算满足条件的天数：count(cond,n)
 求n日内的和：sum(value,n)
 
-举例: 
+举例:
     10天换手率之和: sum(v/capital,10)
     20天内涨停的天数: count((c/ref(c,1)>1.09, 20)
     cross(c,ma(c,5)), 收盘价上穿5日均线
@@ -717,7 +891,7 @@ A线，B线交叉: cross(A,B)
     X:(ATAN((MA(C,5)/REF(MA(C,5),1)-1)*100)*180/3.14115926)>60
     也可以这样：
     X:(ATAN((EMA(C,5)/REF(EMA(C,5),1)-1)*100)*180/3.14115926)>60;
-25,K线沿着5日均线往上爬的选股公式 
+25,K线沿着5日均线往上爬的选股公式
     w1:=ma(c,5);
     w2:=abc(c-w1)/w1<0.01;
     xg:count(w1>ref(w1,1),5)=5 and w2;
@@ -780,11 +954,11 @@ A线，B线交叉: cross(A,B)
 收集派发（Accumulation Distribution）
 指数平均数（EXPMA）
 MACD称为指数平滑异动平均线(Moving Average Convergence and Divergence)
-DIFF线 收盘价短期、长期指数平滑移动平均线间的差  DEA线  DIFF线的M日指数平滑移动平均线  MACD线 DIFF线与DEA线的差，彩色柱状线  参数：SHORT(短期)、LONG(长期)、M 天数，一般为12、26、9  
- * 
- * 
- * 
- * 
+DIFF线 收盘价短期、长期指数平滑移动平均线间的差  DEA线  DIFF线的M日指数平滑移动平均线  MACD线 DIFF线与DEA线的差，彩色柱状线  参数：SHORT(短期)、LONG(长期)、M 天数，一般为12、26、9
+ *
+ *
+ *
+ *
  */
 
 /*
@@ -804,7 +978,7 @@ MACD线　DIFF线与DEA线的差，彩色柱状线 　　
 
 	DIFF : EMA(CLOSE,12) - EMA(CLOSE,26);
 	DEA  : EMA(DIFF,9);
-	MACD : 2*(DIFF-DEA) ,COLORSTICK; 
+	MACD : 2*(DIFF-DEA) ,COLORSTICK;
 */
 
 
@@ -815,18 +989,18 @@ function cal_EMA($dataArray){
 
 	$sum = 0;
 	$result = 0;
-	
+
 	for ($i = 1; $i <= $count; $i++){
 		$sum += $i;
 	}
-	
+
 	for ($i = 0, $j = $count; $i <$count; $i++, $j--){
 		print_r($j."\n");
 		print_r($dataArray[$i]['close']."\n");
 		print_r($sum."\n");
-		
+
 		$result += ($j*$dataArray[$i]['close'])/$sum;
 	}
-	
+
 	return $result;
 }
