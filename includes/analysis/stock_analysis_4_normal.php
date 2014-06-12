@@ -33,14 +33,26 @@ if ($result) {
 		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数6天的交易记录
 		$detail = $conn->getAll($sql);
 
-		//贯穿形态
+		// 贯穿形态
 		if ($detail && count($detail)>=6) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
-				$resultArray = bottom_cross_4_normal($detail);
+				$resultArray = bottom_cross_4_focus($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
-					$score = $resultArray[1];
-					$reason = $resultArray[2];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
+				}
+			}
+		}
+
+		// 长下影
+		if ($detail && count($detail)>=6) {
+			if ($detail[0]['date'] == date("Y-m-d")) {
+				$resultArray = long_down_shadow_4_focus($detail);
+				if ($resultArray[0]) {
+					$isSuggest = $resultArray[0];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
 				}
 			}
 		}

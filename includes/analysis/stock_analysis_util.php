@@ -142,6 +142,7 @@ function long_down_shadow_4_focus($dataArray){
 	$y_per_4 = cal_percentage($tempArray);
 
 	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
+
 		$t_detail = $dataArray[0];
 		$y_detail = $dataArray[1];
 
@@ -164,12 +165,17 @@ function long_down_shadow_4_focus($dataArray){
 		}
 
 		// 收长下影，并且幅度大于8
-		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$t_close>8 && $y_per_1<0){
+		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$y_close>8 && $y_per_1<0){
 			$reasonStr = "收出长下影";
 			$score = 10;
 
 			if ($down_shadow/($t_high-$t_low)>0.8) {
 				$reasonStr .= ",并且下影子很长";
+				$score += 10;
+			}
+
+			if ($t_close >= $t_open) {
+				$reasonStr .= ",今日最终收阳线";
 				$score += 10;
 			}
 
@@ -226,12 +232,17 @@ function long_down_shadow_4_normal($dataArray){
 		}
 
 		// 收长下影，并且幅度大于8
-		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$t_close>8 && $y_per_1<0){
+		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$y_close>8 && $y_per_1<0){
 			$reasonStr = "收出长下影";
 			$score = 10;
 
 			if ($down_shadow/($t_high-$t_low)>0.8) {
 				$reasonStr .= ",并且下影子很长";
+				$score += 10;
+			}
+
+			if ($t_close >= $t_open) {
+				$reasonStr .= ",今日最终收阳线";
 				$score += 10;
 			}
 
@@ -335,7 +346,7 @@ function bottom_cross_4_focus($dataArray){
 		$t_close = $t_detail['close'];
 		$t_open = $t_detail['open'];
 
-		//未跌满5个点以上，或者实体没有到4个点的
+		//未跌满4个点以上，或者实体没有到2个点的，或开盘高于昨日收盘
 		if ($y_per_1>-4 || ($y_open-$y_close)*100/$y_close < 2 || $t_open > $y_close) {
 			return array(false,0,'');
 		}
@@ -399,7 +410,7 @@ function bottom_cross_4_normal($dataArray){
 		$t_close = $t_detail['close'];
 		$t_open = $t_detail['open'];
 
-		//未跌满5个点以上，或者实体没有到4个点的
+		//未跌满4个点以上，或者实体没有到2个点的
 		if ($y_per_1>-4 || ($y_open-$y_close)*100/$y_close < 2 || $t_open > $y_close) {
 			return array(false,0,'');
 		}

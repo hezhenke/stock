@@ -43,8 +43,20 @@ if ($result) {
 				$resultArray = bottom_cross_4_focus($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
-					$score = $resultArray[1];
-					$reason = $resultArray[2];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
+				}
+			}
+		}
+
+		// 长下影
+		if ($detail && count($detail)>=6) {
+			if ($detail[0]['date'] == date("Y-m-d")) {
+				$resultArray = long_down_shadow_4_focus($detail);
+				if ($resultArray[0]) {
+					$isSuggest = $resultArray[0];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
 				}
 			}
 		}

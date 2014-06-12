@@ -46,14 +46,19 @@ if ('focus_list'==strtolower(trim($_REQUEST['m']))){
 		data_back(array(),$m,API_PARAM_MISSING);
 	}
 
-	$item = $conn->getAll($sql);
-
-	if ($item) {
-
-		data_back($item,$m);
+	if ($act == '0'){
+		$item = $conn->getAll($sql);
+		if ($item) {
+			data_back($item,$m);
+		}else {
+			data_back(array(),$m);
+		}
 	}else {
-		data_back(array(),$m);
+		if ($conn->query($sql)) {
+			data_back(array(),$m);
+		}else {
+			data_back(array(),$m,API_DB_ERROR);
+		}
 	}
-
 	$conn->close();
 }
