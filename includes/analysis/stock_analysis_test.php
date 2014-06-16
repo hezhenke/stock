@@ -18,7 +18,7 @@ require_once 'stock_analysis_util.php';
 $conn = new ryan_mysql();
 
 		$stock_name = 'test';
-		$code = '002601'; //600692
+		$code = '002423'; //600692
 		$table_name = $code;
 
 		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数2天的交易记录
@@ -29,7 +29,7 @@ $conn = new ryan_mysql();
 		//贯穿形态
 		if ($detail && count($detail)>=3) {
 			//if ($detail[0]['date'] == date("Y-m-d")) {
-				$resultArray = long_down_shadow_4_focus($detail);
+				$resultArray = red_gun($detail);
 
 				if ($resultArray[0]) {
 					print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
@@ -45,8 +45,8 @@ $conn = new ryan_mysql();
 $conn->close();
 
 exit();
-
 */
+
 
 /*
  * ======================================================================================================================================================
@@ -153,6 +153,7 @@ if ($result) {
 		}
 		 */
 
+		/*
 		 //长下影
 		if ($detail && count($detail)>=3) {
 			//if ($detail[0]['date'] == date("Y-m-d")) {
@@ -172,7 +173,7 @@ if ($result) {
 			//}else {
 			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
 			//}
-
+		*/
 
 
 		/*
@@ -211,8 +212,23 @@ if ($result) {
 		}
 		*/
 
+		// 多方炮
+		if ($detail && count($detail)>=3) {
+			//if ($detail[0]['date'] == date("Y-m-d")) {
+
+			$resultArray = red_gun($detail);
+			if ($resultArray[0]) {
+				$isSuggest = $resultArray[0];
+				$score += $resultArray[1];
+				$reason .= $resultArray[2];
+				print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
+			}
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n");
+		}else {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
+		}
+
 		if ($isSuggest) {
-			echo '123';
 			$date = date("Y-m-d");
 
 			$sql = 'select * from suggest_list where code="'.$code.'" and date="'.$date.'"';

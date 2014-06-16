@@ -510,10 +510,10 @@ function red_eat_green_4_focus($dataArray){
 
 /*
  * Params:传入6天的全数据数组
-* Return:数组{'true or false','分析','推荐权重'}
-* Description：多头吞噬 1.阳线吃掉昨日阴线的所有实体；2.强度与阳线有关，最好是连阴线的阴线也一起吞噬。多头吞噬强于贯穿形态
-* Status:Test Good
-*/
+ * Return:数组{'true or false','分析','推荐权重'}
+ * Description：多头吞噬 1.阳线吃掉昨日阴线的所有实体；2.强度与阳线有关，最好是连阴线的阴线也一起吞噬。多头吞噬强于贯穿形态
+ * Status:Test Good
+ */
 function red_eat_green_4_normal($dataArray){
 	if (count($dataArray) < 6) {
 		return array(false,0,'');
@@ -567,6 +567,58 @@ function red_eat_green_4_normal($dataArray){
 
 				return array(true,$score,$reasonStr);
 			}
+		}
+	}
+
+	return array(false,0,'');
+}
+
+/*
+ * Params:传入4天的全数据数组
+ * Return:数组{'true or false','分析','推荐权重'}
+ * Description：多方炮 1.前天收阳，涨幅大于2%；昨天收阴，振幅大于3%；今天收阳，涨幅大于2%；2.中间阴线的实体要在两个阳线实体之间；3.今日开盘价在5日和10日线之下，收盘价在5日和10日线之上
+ * Status:Test Good
+ */
+function red_gun($dataArray){
+	if (count($dataArray) < 4) {
+		return array(false,0,'');
+	}
+
+	$tempArray = array_slice($dataArray, 0, 2);
+	$t_per = cal_percentage($tempArray);
+
+	$tempArray = array_slice($dataArray, 1, 2);
+	$y_per_1 = cal_percentage($tempArray);//计算昨天涨跌幅
+
+	$tempArray = array_slice($dataArray, 2, 2);
+	$y_per_2 = cal_percentage($tempArray);
+
+	if ($t_per>2 && $y_per_2>2) {
+		$t_detail = $dataArray[0];
+		$y_detail_1 = $dataArray[1];
+		$y_detail_2 = $dataArray[2];
+
+		$t_close = $t_detail['close'];
+		$t_open = $t_detail['open'];
+		$t_high = $t_detail['high'];
+		$t_low = $t_detail['low'];
+
+		$y_close_1 = $y_detail_1['close'];
+		$y_open_1 = $y_detail_1['open'];
+		$y_high_1 = $y_detail_1['high'];
+		$y_low_1 = $y_detail_1['low'];
+
+		$y_close_2 = $y_detail_2['close'];
+		$y_open_2 = $y_detail_2['open'];
+		$y_high_2 = $y_detail_2['high'];
+		$y_low_2 = $y_detail_2['low'];
+
+		if ($y_close_1>$y_open_2 && $y_close_1>$t_open && $y_open_1>$y_open_2 && $y_open_1>$t_open &&
+			$y_open_1<$y_close_2 && $y_open_1<$t_close && $y_close_1<$y_close_2 && $y_close_1<$t_close) {
+			$reasonStr = "形成多方炮";
+			$score = 15;
+
+			return array(true,$score,$reasonStr);
 		}
 	}
 
