@@ -61,6 +61,18 @@ if ($result) {
 			}
 		}
 
+		// 否极泰来
+		if ($detail && count($detail)>=6) {
+			if ($detail[0]['date'] == date("Y-m-d")) {
+				$resultArray = reverse_bad_to_good($detail);
+				if ($resultArray[0]) {
+					$isSuggest = $resultArray[0];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
+				}
+			}
+		}
+
 		// 写入数据库
 		if ($isSuggest) {
 			$date = date("Y-m-d");

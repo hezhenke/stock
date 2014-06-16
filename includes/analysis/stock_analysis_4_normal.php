@@ -28,7 +28,7 @@ if ($result) {
 		$score = 0;
 		$reason = '';
 		$isSuggest = FALSE;
-		$focus = 1;
+		$focus = 0;
 
 		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数6天的交易记录
 		$detail = $conn->getAll($sql);
@@ -49,6 +49,18 @@ if ($result) {
 		if ($detail && count($detail)>=6) {
 			if ($detail[0]['date'] == date("Y-m-d")) {
 				$resultArray = long_down_shadow_4_focus($detail);
+				if ($resultArray[0]) {
+					$isSuggest = $resultArray[0];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
+				}
+			}
+		}
+
+		// 否极泰来
+		if ($detail && count($detail)>=6) {
+			if ($detail[0]['date'] == date("Y-m-d")) {
+				$resultArray = reverse_bad_to_good($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
 					$score += $resultArray[1];

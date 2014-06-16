@@ -8,6 +8,11 @@
 * @Creation 2014-5-7 下午1:02:47
 * @Modify
 * @version V1.0
+*
+* @基本概念	十字星 	<0.5%
+* 			小阳线 	0.5%~1.5%
+* 			中阳线	1.5%~3.5%
+* 			大阳线	>3.5%
 * -----------------------------------------------------------
 */
 
@@ -294,12 +299,12 @@ function reverse_bad_to_good($dataArray){
 		$t_volume = $t_detail['volume'];
 
 		//未跌满5个点以上，或者实体没有到4个点的
-		if ($y_per_1>-5 || ($y_open-$y_close)*100/$y_close < 4) {
+		if ($y_per_1>-4 || ($y_open-$y_close)*100/$y_close < 2) {
 			return array(false,0,'');
 		}
 
 		// 1.最低价高于昨日大阴线实体的中间位；2.中阳线应无上影或上影极短；3.不能缩量，要适度放量；4.最高价高于大阴线最高价
-		if ($t_low > $y_mid && ($t_high-$t_close)/$t_close<0.003 && $t_volume > $y_volume && $t_high >= $y_high) {
+		if ($t_low > $y_mid && ($t_high-$t_close)/$y_close<0.003 && $t_volume > $y_volume && $t_high >= $y_high) {
 			$reasonStr = "形成否极泰来";
 			$score = 30;
 
