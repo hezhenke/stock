@@ -1,15 +1,15 @@
 <?php
-/**   
-* 
+/**
+*
 * ===========================================
 * @Author Ryan
 * @Filename: stock_fetch_Util.php
-* @Description: 收集获取数据所用的function 
-* @Creation 2014-5-5 下午4:14:45 
-* @Modify 
-* @version V1.0   
+* @Description: 收集获取数据所用的function
+* @Creation 2014-5-5 下午4:14:45
+* @Modify
+* @version V1.0
 * -----------------------------------------------------------
-*/ 
+*/
 
 require_once(dirname(__FILE__) . '/../db/ryan_mysql.php');
 require_once(dirname(__FILE__) . '/../db/constant.php');
@@ -88,30 +88,30 @@ function set_corp_data_into_db($code){
 		}
 
 		krsort($dataArray); // 排倒序
-		
+
 		$isSuccess = true;
-		
+
 		if (count($dataArray) == 0) {
 			log_to_text('corp code: '.$code.' csv down fail!');
 		}
-		
+
 		foreach ($dataArray as $item){
-			
+
 			$date = $item[0];
-			
+
 			if (strlen($date) == 10 && (substr($date, 0, 1) == '1' || substr($date, 0, 1) == '2')) {
 				$open = $item[1];
 				$high = $item[2];
 				$low = $item[3];
 				$close = $item[4];
 				$volume = $item[5];
-				
+
 				$sql = 'insert into `'.$table_name.'` set date="'.$date.'",open="'.$open
 					.'",high="'.$high.'",low="'.$low.'",close="'.$close
 					.'",volume="'.$volume
 					.'" on duplicate key update open="'.$open.'",high="'.$high
 					.'",low="'.$low.'",close="'.$close.'",volume="'.$volume.'"';
-		
+
 				if ($conn->query($sql)) {
 					//print_r($date." insert success \n");
 				}
@@ -123,7 +123,7 @@ function set_corp_data_into_db($code){
 
 		fclose($file);
 		$conn->close();
-		
+
 		return $isSuccess;
 	}else {
 		return false;
@@ -151,7 +151,7 @@ function down_csv($code){
 
 	//从
 	$url = $url.'&a=0&b=1&c=2014';
-	
+
 	httpcopy($url,$file);
 }
 
@@ -195,7 +195,7 @@ function set_realtime_data_into_db($code){
 
 	// 数据处理
 	$tempArray = explode("\"",$html);
-	
+
 	$rawData = $tempArray[1];
 	//print_r($rawData."\n");
 
@@ -252,7 +252,7 @@ function set_realtime_data_into_db($code){
 	}else {
 		print_r("股票名：".$stock_name."\n股票代码：".$table_name."\n开盘价：".$open."\n当前价：".$current."\n最高价：".$high."\n最低价：".$low."\n成交量：".$volume."\n日期：".$date."\n");
 	}
-	
+
 	// create table if not exists table
 	$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
 			.'`date` date NOT NULL,'
@@ -282,7 +282,7 @@ function set_tape_into_db(){
 	// 深成指tape_399001  	http://hq.sinajs.cn/list=s_sz399001
 	// 中小板指tap_399005		http://hq.sinajs.cn/list=s_sz399005
 	// 创业板tape_399006		http://hq.sinajs.cn/list=s_sz399006
-	
+
 	get_tape_data_from_sina('000001');
 	get_tape_data_from_sina('399001');
 	get_tape_data_from_sina('399005');
@@ -291,26 +291,26 @@ function set_tape_into_db(){
 
 function get_tape_data_from_sina($code){
 	$conn = new ryan_mysql();
-	
+
 	if ($code == '000001') {
 		$requestURL = 'http://hq.sinajs.cn/list=s_sh'.$code;
 	}else {
 		$requestURL = 'http://hq.sinajs.cn/list=s_sz'.$code;
 	}
-	
+
 	$table_name = 'tape_'.$code;
-	
+
 	$html = file_get_contents($requestURL);
-	
+
 	$html = iconv("gb2312", "utf-8//IGNORE",$html);
 	//print_r($html."\n");
-	
+
 	// 数据处理
 	$tempArray = explode("\"",$html);
-	
+
 	$rawData = $tempArray[1];
 	//print_r($rawData."\n");
-	
+
 	/*
 	 0:指数名称，
 	1:当前点数，
@@ -319,22 +319,22 @@ function get_tape_data_from_sina($code){
 	4:成交量（手），
 	5:成交额（万元）；
 	*/
-	
+
 	$rawDataArray = explode(",", $rawData);
-	
+
 	$stock_name = trim($rawDataArray[0]);
 	$point = $rawDataArray[1];
 	$pRange = $rawDataArray[3];
 	$volume = $rawDataArray[4];
 	$money = $rawDataArray[5];
 	$date = date("Y-m-d");
-	
+
 	if ($volume == 0) {
 		print_r("股票名：".$stock_name."\n今日停牌\n");
 	}else {
 		print_r("股票名：".$stock_name."\n股票代码：".$table_name."\n当前点数：".$point."\n涨跌：".$pRange."\n成交量：".$volume."\n成交额：".$money."\n日期：".$date."\n");
 	}
-	
+
 	// create table if not exists table
 	$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
 			.'`date` date NOT NULL,'
@@ -345,16 +345,16 @@ function get_tape_data_from_sina($code){
 											.'PRIMARY KEY (`date`)'
 													.') ENGINE=MyISAM DEFAULT CHARSET=utf8';
 	$conn->query($sql);
-	
+
 	$sql = 'insert into `'.$table_name.'` set date="'.$date.'",point="'.$point
 	.'",pRange="'.$pRange.'",volume="'.$volume.'",money="'.$money
 	.'" on duplicate key update point="'.$point.'",pRange="'.$pRange
 	.'",volume="'.$volume.'",money="'.$money.'"';
-	
+
 	if ($conn->query($sql)) {
 		print_r($date." insert success \n");
 	}
-	
+
 	$conn->close();
 }
 
@@ -383,20 +383,22 @@ function get_realtime_data_from_sina($code){
 function set_corp_list_into_db_from_sina($needDrop){
 	$table_name = 'corp_codes';
 
+	$conn = new ryan_mysql();
 
 	if ($needDrop) {
-		$conn = new ryan_mysql();
-
-		$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
-				.'`code` char(10) NOT NULL,'
-						.'`name` char(40) NOT NULL,'
-								//		.'`id` int(11) NOT NULL AUTO_INCREMENT,'
-		.'PRIMARY KEY (`code`)'
-										.') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8';
-
-		$conn->query($sql);
-		$conn->close();
+		$sql = 'drop table '.$table_name;
 	}
+
+	$sql = 'CREATE TABLE IF NOT EXISTS `'.$table_name.'` ('
+			.'`code` char(10) NOT NULL,'
+			.'`name` char(40) NOT NULL,'
+			.'PRIMARY KEY (`code`)'
+			.') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8';
+
+	$conn->query($sql);
+	$conn->close();
+
+
 
 	request_data_with_prefix('000');
 	request_data_with_prefix('002');
@@ -423,7 +425,7 @@ function request_data_with_prefix($prefix){
 
 		// 数据处理
 		$tempArray = explode("\"",$html);
-		
+
 		$rawData = $tempArray[1];
 		//print_r($rawData."\n");
 
@@ -432,7 +434,7 @@ function request_data_with_prefix($prefix){
 			print_r($code.'不存在此公司');
 		}else {
 			$rawDataArray = explode(",", $rawData);
-			
+
 			$corp_code = $code;
 			$corp_name = trim($rawDataArray[0]);
 			$sql = 'insert into `'.$table_name.'` set code="'.$corp_code.'",name="'.$corp_name.'" on duplicate key update name="'.$corp_name.'"';

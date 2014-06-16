@@ -17,9 +17,10 @@
 require_once 'stock_fetch_util.php';
 require_once(dirname(__FILE__) . '/../Util.php');
 
-$conn = new ryan_mysql();
+set_corp_list_into_db_from_sina(FALSE); 	//创建corp_codes列表，并导入公司列表
 
-//set_corp_list_into_db_from_sina(true);
+/*
+$conn = new ryan_mysql();
 
 $sql = 'SELECT * FROM corp_codes';
 
@@ -46,7 +47,6 @@ if ($result) {
 			}
 		}
 
-		/*
 		if (substr($code, 0, 3) == '000') {
 
 		}else if (substr($code, 0, 3) == '002') {
@@ -86,8 +86,9 @@ if ($result) {
 			}
 
 		}
-		*/
+
 	}
 }
 
 $conn->close();
+*/
