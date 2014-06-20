@@ -256,7 +256,7 @@ if ($result) {
 			$sql = 'select * from suggest_list where code="'.$code.'" and date="'.$date.'"';
 			$item = $conn->getAll($sql);
 			if (count($item) == 0) {
-				$sql = 'insert into suggest_list set code="'.$code.'",date="'.$date
+				$sql = 'insert into suggest_list set code="'.$code.'",name="'.$stock_name.'",date="'.$date
 				.'",score="'.$score.'",reason="'.$reason.'",close="'.$close.'",percent="'.$percent.'",focus="'.$focus.'"';
 			}else{
 				$sql = 'update suggest_list set score="'.$score.'",reason="'.$reason
