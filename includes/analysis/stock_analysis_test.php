@@ -249,14 +249,18 @@ if ($result) {
 		if ($isSuggest) {
 			$date = date("Y-m-d");
 
+			$tempArray = array_slice($detail, 0, 2);
+			$percent = cal_percentage($tempArray);
+			$close = $detail[0]['close'];
+
 			$sql = 'select * from suggest_list where code="'.$code.'" and date="'.$date.'"';
 			$item = $conn->getAll($sql);
 			if (count($item) == 0) {
 				$sql = 'insert into suggest_list set code="'.$code.'",date="'.$date
-				.'",score="'.$score.'",reason="'.$reason.'",focus="'.$focus.'"';
+				.'",score="'.$score.'",reason="'.$reason.'",close="'.$close.'",percent="'.$percent.'",focus="'.$focus.'"';
 			}else{
 				$sql = 'update suggest_list set score="'.$score.'",reason="'.$reason
-				.'",focus="1" where code="'.$code.'"';
+				.'",close="'.$close.'",percent="'.$percent.'",focus="'.$focus.'" where code="'.$code.'"';
 			}
 			$conn->query($sql);
 		}
