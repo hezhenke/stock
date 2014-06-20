@@ -97,6 +97,18 @@ if ($result) {
 			}
 		}
 
+		// 阳线放量
+		if ($detail && count($detail)>=6) {
+			if ($detail[0]['date'] == date("Y-m-d")) {
+				$resultArray = volume_increase($detail);
+				if ($resultArray[0]) {
+					$isSuggest = $resultArray[0];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
+				}
+			}
+		}
+
 		// 写入数据库
 		if ($isSuggest) {
 			$date = date("Y-m-d");
@@ -108,7 +120,7 @@ if ($result) {
 				.'",score="'.$score.'",reason="'.$reason.'",focus="'.$focus.'"';
 			}else{
 				$sql = 'update suggest_list set score="'.$score.'",reason="'.$reason
-				.'",focus="1" where code="'.$code.'"';
+				.'",focus="'.$focus.'" where code="'.$code.'"';
 			}
 			$conn->query($sql);
 		}

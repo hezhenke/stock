@@ -626,6 +626,49 @@ function red_gun($dataArray){
 }
 
 /*
+ * Params:传入6天的全数据数组
+* Return:数组{'true or false','分析','推荐权重'}
+* Description：放量 1.当天收阳，且大于2% 2.当天的量为昨天的2-5倍 3.当天的量为前5天平均量的2-5倍
+* Status:Test Good
+*/
+function volume_increase($dataArray){
+	if (count($dataArray) < 6) {
+		return array(false,0,'');
+	}
+
+	$tempArray = array_slice($dataArray, 0, 2);
+	$t_per = cal_percentage($tempArray);
+
+	if ($t_per>2) {
+		$t_volume = $dataArray[0]['volume'];
+		$y_volume_1 = $dataArray[1]['volume'];
+		$y_volume_2 = $dataArray[2]['volume'];
+		$y_volume_3 = $dataArray[3]['volume'];
+		$y_volume_4 = $dataArray[4]['volume'];
+		$y_volume_5 = $dataArray[5]['volume'];
+
+		$y_average = ($y_volume_1+$y_volume_2+$y_volume_3+$y_volume_4+$y_volume_5)/5;
+
+		$y1_factor = round($t_volume/$y_volume_1,2);
+		$y5_factor = round($t_volume/$y_average,2);
+
+		if ($y1_factor >= 2 && $y1_factor <= 5) {
+			$reasonStr = "今日阳线放量，为昨天的".$y1_factor."倍";
+			$score = 10;
+
+			if ($y5_factor >= 2 && $y5_factor <= 5) {
+				$reasonStr .= "且为前5日平均量的".$y5_factor."倍";
+				$score = 10;
+			}
+
+			return array(true,$score,$reasonStr);
+		}
+	}
+
+	return array(false,0,'');
+}
+
+/*
  * Params:传入7天的全数据数组
  * Return:数组{'true or false','分析','推荐权重'}
  * Description：1.大阴线，十字星，小阳或中阳

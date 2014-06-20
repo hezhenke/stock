@@ -212,11 +212,29 @@ if ($result) {
 		}
 		*/
 
+		/*
 		// 多方炮
 		if ($detail && count($detail)>=3) {
 			//if ($detail[0]['date'] == date("Y-m-d")) {
 
 			$resultArray = red_gun($detail);
+			if ($resultArray[0]) {
+				$isSuggest = $resultArray[0];
+				$score += $resultArray[1];
+				$reason .= $resultArray[2];
+				print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$resultArray[1]."\n得分：".$resultArray[2]."\n");
+			}
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n");
+		}else {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n今日停牌\n");
+		}
+		*/
+
+		// 阳线放量
+		if ($detail && count($detail)>=3) {
+			//if ($detail[0]['date'] == date("Y-m-d")) {
+
+			$resultArray = volume_increase($detail);
 			if ($resultArray[0]) {
 				$isSuggest = $resultArray[0];
 				$score += $resultArray[1];
