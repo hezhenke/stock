@@ -469,6 +469,8 @@ function red_eat_green_4_focus($dataArray){
 	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 		$t_per = cal_percentage($dataArray);//计算今日涨跌幅
 
+		print_r(123);
+
 		if ($y_per_1<-1 && $t_per>2){
 
 			$t_detail = $dataArray[0];
@@ -576,7 +578,7 @@ function red_eat_green_4_normal($dataArray){
 /*
  * Params:传入4天的全数据数组
  * Return:数组{'true or false','分析','推荐权重'}
- * Description：多方炮 1.前天收阳，涨幅大于2%；昨天收阴，振幅大于3%；今天收阳，涨幅大于2%；2.中间阴线的实体要在两个阳线实体之间；3.今日开盘价在5日和10日线之下，收盘价在5日和10日线之上
+ * Description：多方炮 1.前天收阳，涨幅大于2%；昨天收阴，振幅大于3%；今天收阳，涨幅大于2%；2.中间阴线的实体要在两个阳线实体之间；
  * Status:Test Good
  */
 function red_gun($dataArray){
@@ -627,9 +629,9 @@ function red_gun($dataArray){
 
 /*
  * Params:传入6天的全数据数组
-* Return:数组{'true or false','分析','推荐权重'}
-* Description：放量 1.当天收阳，且大于2% 2.当天的量为昨天的2-5倍 3.当天的量为前5天平均量的2-5倍
-* Status:Test Good
+ * Return:数组{'true or false','分析','推荐权重'}
+ * Description：放量 1.当天收阳，且大于2% 2.当天的量为昨天的2-5倍 3.当天的量为前5天平均量的2-5倍
+ * Status:Test Good
 */
 function volume_increase($dataArray){
 	if (count($dataArray) < 6) {
@@ -665,6 +667,62 @@ function volume_increase($dataArray){
 		}
 	}
 
+	return array(false,0,'');
+}
+
+/*
+ * Params:传入30天的全数据数组
+ * Return:数组{'true or false','分析','推荐权重'}
+ * Description：一阳穿N线 1.当天的5日线和10日线走平（0.5%） 2.拉出一根大阳线穿过5日、10日、20日甚至30日线
+ * Status:Test Good
+*/
+function red_cross_average_line($dataArray){
+	if (count($dataArray) < 30) {
+		return array(false,0,'');
+	}
+
+	$tempArray = array_slice($dataArray, 0, 2);
+	$t_per = cal_percentage($tempArray);
+
+	if ($t_per>3.5) {
+		$tempArray = array_slice($dataArray, 0, 5);
+		$ma_5 = MA($tempArray);
+		$tempArray = array_slice($dataArray, 0, 10);
+		$ma_10 = MA($tempArray);
+		$tempArray = array_slice($dataArray, 0, 20);
+		$ma_20 = MA($tempArray);
+		$tempArray = array_slice($dataArray, 0, 30);
+		$ma_30 = MA($tempArray);
+
+		$t_close = $dataArray[0]['close'];
+		$t_open = $dataArray[0]['open'];
+
+		$y_close = $dataArray[1]['close'];
+
+		if ($t_close > $ma_5 && $t_close > $ma_10 && $t_close > $ma_20 && $t_open < $ma_5 && $t_open < $ma_10 && $t_open < $ma_20) {
+			// 一阳穿N线
+			$reasonStr = "今日收出大阳线，一阳穿破5日、10日和20日均线";
+			$score = 25;
+
+			if ($t_close > $ma_30 && $t_open < $ma_30) {
+				$reasonStr .= ",并且突破了30日均线";
+				$score += 10;
+			}
+
+			return array(true,$score,$reasonStr);
+		}elseif ($t_close > $ma_5 && $t_close > $ma_10 && $t_close > $ma_20 && $y_close < $ma_5 && $y_close < $ma_10 && $y_close < $ma_20){
+			// 跳空高开
+			$reasonStr = "今日收出跳空高开大阳线，一阳穿破5日、10日和20日均线";
+			$score = 30;
+
+			if ($t_close > $ma_30 && $t_open < $ma_30) {
+				$reasonStr .= ",并且突破了30日均线";
+				$score += 10;
+			}
+
+			return array(true,$score,$reasonStr);
+		}
+	}
 	return array(false,0,'');
 }
 

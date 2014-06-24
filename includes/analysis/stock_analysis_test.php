@@ -14,14 +14,14 @@
 require_once(dirname(__FILE__) . '/../db/ryan_mysql.php');
 require_once 'stock_analysis_util.php';
 
-/*
+
 $conn = new ryan_mysql();
 
 		$stock_name = 'test';
-		$code = '002423'; //600692
+		$code = '002490'; //600692
 		$table_name = $code;
 
-		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数2天的交易记录
+		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 31';//倒数2天的交易记录
 		$detail = $conn->getAll($sql);
 
 
@@ -45,7 +45,7 @@ $conn = new ryan_mysql();
 $conn->close();
 
 exit();
-*/
+
 
 
 /*

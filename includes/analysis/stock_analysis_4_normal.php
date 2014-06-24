@@ -1,14 +1,21 @@
 <?php
 /**
-  *
-  * ===========================================
-  * @Author Ryan
-  * @Filename: stock_analysis_4_normal.php
-  * @Description: 分析模型_4_通用
-  * @Creation 2014-6-9 下午6:24:15
-  * @Modify
-  * @version V1.0
-  * -----------------------------------------------------------
+ *
+ * ===========================================
+ * @Author Ryan
+ * @Filename: stock_analysis_4_normal.php
+ * @Description: 分析模型_4_通用
+ * @Creation 2014-6-9 下午6:24:15
+ * @Modify
+ * @version V1.0
+ *
+ * 使用：	1、贯穿形态	a.大阴线后面紧跟一个大阳线；b.大阳的实体深入大阴的中位之上；c.开盘越低，收盘越高，反转可能越大
+ * 			2、长下影	下降途中收长下影
+ * 			3、否极泰来 	a.最低价高于昨日大阴线实体的中间位；b.中阳线应无上影或上影极短；c.不能缩量，要适度放量；d.最高价高于大阴线最高价
+ * 			4、多头吞噬	a.阳线吃掉昨日阴线的所有实体；b.强度与阳线有关，最好是连阴线的阴线也一起吞噬。多头吞噬强于贯穿形态
+ * 			5、多方炮	a.前天收阳，涨幅大于2%；昨天收阴，振幅大于3%；今天收阳，涨幅大于2%；b.中间阴线的实体要在两个阳线实体之间
+ *
+ * -----------------------------------------------------------
 */
 
 require_once(dirname(__FILE__) . '/../db/ryan_mysql.php');
@@ -31,7 +38,7 @@ if ($result) {
 		$isSuggest = FALSE;
 		$focus = 0;
 
-		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 6';//倒数6天的交易记录
+		$sql = 'SELECT * FROM `'.$table_name.'` WHERE volume > 0 ORDER BY date DESC LIMIT 31';//倒数6天的交易记录
 		$detail = $conn->getAll($sql);
 
 		// 贯穿形态
@@ -46,6 +53,10 @@ if ($result) {
 			}
 		}
 
+		if ($isSuggest) {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$reason."\n得分：".$score."\n");
+		}
+
 		// 长下影
 		if ($detail && count($detail)>=6) {
 			if ($detail[0]['date'] == $analysis_date) {
@@ -56,6 +67,10 @@ if ($result) {
 					$reason .= $resultArray[2];
 				}
 			}
+		}
+
+		if ($isSuggest) {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$reason."\n得分：".$score."\n");
 		}
 
 		// 否极泰来
@@ -70,6 +85,10 @@ if ($result) {
 			}
 		}
 
+		if ($isSuggest) {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$reason."\n得分：".$score."\n");
+		}
+
 		// 多头吞噬
 		if ($detail && count($detail)>=6) {
 			if ($detail[0]['date'] == $analysis_date) {
@@ -80,6 +99,10 @@ if ($result) {
 					$reason .= $resultArray[2];
 				}
 			}
+		}
+
+		if ($isSuggest) {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$reason."\n得分：".$score."\n");
 		}
 
 		// 多方炮
@@ -93,6 +116,23 @@ if ($result) {
 				}
 			}
 		}
+
+		// 一日穿N线
+		if ($detail && count($detail)>=30) {
+			if ($detail[0]['date'] == $analysis_date) {
+				$resultArray = red_cross_average_line($detail);
+				if ($resultArray[0]) {
+					$isSuggest = $resultArray[0];
+					$score += $resultArray[1];
+					$reason .= $resultArray[2];
+				}
+			}
+		}
+
+		if ($isSuggest) {
+			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$reason."\n得分：".$score."\n");
+		}
+
 
 		// 写入数据库
 		if ($isSuggest) {
