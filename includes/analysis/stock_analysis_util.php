@@ -469,7 +469,7 @@ function red_eat_green_4_focus($dataArray){
 	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 		$t_per = cal_percentage($dataArray);//计算今日涨跌幅
 
-		if ($y_per_1<0 && $t_per>2){
+		if ($y_per_1<-1 && $t_per>2){
 
 			$t_detail = $dataArray[0];
 			$y_detail = $dataArray[1];
@@ -534,7 +534,7 @@ function red_eat_green_4_normal($dataArray){
 	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 		$t_per = cal_percentage($dataArray);//计算今日涨跌幅
 
-		if ($y_per_1<0 && $t_per>2){
+		if ($y_per_1<-1 && $t_per>2){
 
 			$t_detail = $dataArray[0];
 			$y_detail = $dataArray[1];

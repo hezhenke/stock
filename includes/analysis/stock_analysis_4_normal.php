@@ -21,6 +21,7 @@ $sql = 'SELECT * FROM corp_codes where focus = 0';
 $result = $conn->getAll($sql);
 if ($result) {
 	foreach ($result as $corp){
+		$analysis_date = date("Y-m-d");
 		$stock_name = $corp['name'];
 		$code = $corp['code'];
 		$table_name = $code;
@@ -35,7 +36,7 @@ if ($result) {
 
 		// 贯穿形态
 		if ($detail && count($detail)>=6) {
-			if ($detail[0]['date'] == date("Y-m-d")) {
+			if ($detail[0]['date'] == $analysis_date) {
 				$resultArray = bottom_cross_4_focus($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
@@ -47,7 +48,7 @@ if ($result) {
 
 		// 长下影
 		if ($detail && count($detail)>=6) {
-			if ($detail[0]['date'] == date("Y-m-d")) {
+			if ($detail[0]['date'] == $analysis_date) {
 				$resultArray = long_down_shadow_4_focus($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
@@ -59,7 +60,7 @@ if ($result) {
 
 		// 否极泰来
 		if ($detail && count($detail)>=6) {
-			if ($detail[0]['date'] == date("Y-m-d")) {
+			if ($detail[0]['date'] == $analysis_date) {
 				$resultArray = reverse_bad_to_good($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
@@ -71,7 +72,7 @@ if ($result) {
 
 		// 多头吞噬
 		if ($detail && count($detail)>=6) {
-			if ($detail[0]['date'] == date("Y-m-d")) {
+			if ($detail[0]['date'] == $analysis_date) {
 				$resultArray = red_eat_green_4_focus($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
@@ -83,7 +84,7 @@ if ($result) {
 
 		// 多方炮
 		if ($detail && count($detail)>=6) {
-			if ($detail[0]['date'] == date("Y-m-d")) {
+			if ($detail[0]['date'] == $analysis_date) {
 				$resultArray = red_gun($detail);
 				if ($resultArray[0]) {
 					$isSuggest = $resultArray[0];
@@ -97,7 +98,7 @@ if ($result) {
 		if ($isSuggest) {
 			// 阳线放量
 			if ($detail && count($detail)>=6) {
-				if ($detail[0]['date'] == date("Y-m-d")) {
+				if ($detail[0]['date'] == $analysis_date) {
 					$resultArray = volume_increase($detail);
 					if ($resultArray[0]) {
 						$isSuggest = $resultArray[0];
@@ -107,16 +108,14 @@ if ($result) {
 				}
 			}
 
-			$date = date("Y-m-d");
-
 			$tempArray = array_slice($detail, 0, 2);
 			$percent = cal_percentage($tempArray);
 			$close = $detail[0]['close'];
 
-			$sql = 'select * from suggest_list where code="'.$code.'" and date="'.$date.'"';
+			$sql = 'select * from suggest_list where code="'.$code.'" and date="'.$analysis_date.'"';
 			$item = $conn->getAll($sql);
 			if (count($item) == 0) {
-				$sql = 'insert into suggest_list set code="'.$code.'",name="'.$stock_name.'",date="'.$date
+				$sql = 'insert into suggest_list set code="'.$code.'",name="'.$stock_name.'",date="'.$analysis_date
 				.'",score="'.$score.'",reason="'.$reason.'",close="'.$close.'",percent="'.$percent.'",focus="'.$focus.'"';
 			}else{
 				$sql = 'update suggest_list set score="'.$score.'",reason="'.$reason
