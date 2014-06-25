@@ -136,6 +136,9 @@ if ($result) {
 			$percent = cal_percentage($tempArray);
 			$close = $detail[0]['close'];
 
+			$reason = substr($reason, 0, strlen($reason)-1);
+			$reason .= "。";
+
 			$sql = 'select * from suggest_list where code="'.$code.'" and date="'.$analysis_date.'"';
 			$item = $conn->getAll($sql);
 			if (count($item) == 0) {

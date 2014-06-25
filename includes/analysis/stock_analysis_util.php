@@ -171,16 +171,16 @@ function long_down_shadow_4_focus($dataArray){
 
 		// 收长下影，并且幅度大于8
 		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$y_close>8 && $y_per_1<0){
-			$reasonStr = "收出长下影";
+			$reasonStr = "收出长下影,";
 			$score = 10;
 
 			if ($down_shadow/($t_high-$t_low)>0.8) {
-				$reasonStr .= ",并且下影子很长";
+				$reasonStr .= "并且下影子很长,";
 				$score += 10;
 			}
 
 			if ($t_close >= $t_open) {
-				$reasonStr .= ",今日最终收阳线";
+				$reasonStr .= "今日最终收阳线,";
 				$score += 10;
 			}
 
@@ -238,16 +238,16 @@ function long_down_shadow_4_normal($dataArray){
 
 		// 收长下影，并且幅度大于8
 		if ($down_shadow/($t_high-$t_low)>0.5 && ($t_high-$t_low)*100/$y_close>8 && $y_per_1<0){
-			$reasonStr = "收出长下影";
+			$reasonStr = "收出长下影,";
 			$score = 10;
 
 			if ($down_shadow/($t_high-$t_low)>0.8) {
-				$reasonStr .= ",并且下影子很长";
+				$reasonStr .= "并且下影子很长,";
 				$score += 10;
 			}
 
 			if ($t_close >= $t_open) {
-				$reasonStr .= ",今日最终收阳线";
+				$reasonStr .= "今日最终收阳线,";
 				$score += 10;
 			}
 
@@ -305,7 +305,7 @@ function reverse_bad_to_good($dataArray){
 
 		// 1.最低价高于昨日大阴线实体的中间位；2.中阳线应无上影或上影极短；3.不能缩量，要适度放量；4.最高价高于大阴线最高价
 		if ($t_low > $y_mid && ($t_high-$t_close)/$y_close<0.003 && $t_volume > $y_volume && $t_high >= $y_high) {
-			$reasonStr = "形成否极泰来";
+			$reasonStr = "形成否极泰来,";
 			$score = 30;
 
 			return array(true,$score,$reasonStr);
@@ -357,19 +357,19 @@ function bottom_cross_4_focus($dataArray){
 		}
 
 		if ($t_close > $y_mid && $t_close < $y_open) {
-			$reasonStr = "形成贯穿形态";
+			$reasonStr = "形成贯穿形态,";
 			$score = 10;
 
 			$temp_per = round(($t_open-$y_close)*100/$y_close,2); // 是否低开1%以上
 			if ($temp_per <= -1) {
 				$score += 5;
-				$reasonStr .= "，且低开".abs($temp_per).'%';
+				$reasonStr .= "且低开".abs($temp_per).'%,';
 			}
 
 			$temp_per = round(($y_open-$t_close)*100/$y_close,2); // 收盘是否离大阴线上沿很近
 			if ($temp_per < 2) {
 				$score += 10;
-				$reasonStr .= ",最终收盘离昨日开盘价差".$temp_per.'%';
+				$reasonStr .= "最终收盘离昨日开盘价差".$temp_per.'%,';
 			}
 
 			return array(true,$score,$reasonStr);
@@ -421,19 +421,19 @@ function bottom_cross_4_normal($dataArray){
 		}
 
 		if ($t_close > $y_mid && $t_close < $y_open) {
-			$reasonStr = "形成贯穿形态";
+			$reasonStr = "形成贯穿形态,";
 			$score = 10;
 
 			$temp_per = round(($t_open-$y_close)*100/$y_close,2); // 是否低开1%以上
 			if ($temp_per <= -1) {
 				$score += 5;
-				$reasonStr .= "，且低开".abs($temp_per).'%';
+				$reasonStr .= "且低开".abs($temp_per).'%,';
 			}
 
 			$temp_per = round(($y_open-$t_close)*100/$y_close,2); // 收盘是否离大阴线上沿很近
 			if ($temp_per < 2) {
 				$score += 10;
-				$reasonStr .= ",最终收盘离昨日开盘价差".$temp_per.'%';
+				$reasonStr .= "最终收盘离昨日开盘价差".$temp_per.'%,';
 			}
 
 			return array(true,$score,$reasonStr);
@@ -469,8 +469,6 @@ function red_eat_green_4_focus($dataArray){
 	if (($y_per_1+$y_per_2+$y_per_3+$y_per_4)<-8 || ($y_per_1+$y_per_2+$y_per_3) < -8 || ($y_per_1+$y_per_2)<-8) {
 		$t_per = cal_percentage($dataArray);//计算今日涨跌幅
 
-		print_r(123);
-
 		if ($y_per_1<-1 && $t_per>2){
 
 			$t_detail = $dataArray[0];
@@ -485,7 +483,7 @@ function red_eat_green_4_focus($dataArray){
 			$t_open = $t_detail['open'];
 
 			if ($t_close>$y_open && $t_open<$y_close) {
-				$reasonStr = "形成多头吞噬形态";
+				$reasonStr = "形成多头吞噬形态,";
 				$score = 25;
 
 				if ($t_open<$y_low) {
@@ -495,11 +493,11 @@ function red_eat_green_4_focus($dataArray){
 
 				if ($t_close>$y_high){
 					$score += 10;
-					$reasonStr .= ",吞噬了下影线";
+					$reasonStr .= "吞噬了下影线,";
 				}
 
 				if ($score == 40) {
-					$reasonStr .= ",并呈现吞噬所有影线的完美状态";
+					$reasonStr .= "并呈现吞噬所有影线的完美状态,";
 				}
 
 				return array(true,$score,$reasonStr);
@@ -550,7 +548,7 @@ function red_eat_green_4_normal($dataArray){
 			$t_open = $t_detail['open'];
 
 			if ($t_close>$y_open && $t_open<$y_close) {
-				$reasonStr = "形成多头吞噬形态";
+				$reasonStr = "形成多头吞噬形态,";
 				$score = 25;
 
 				if ($t_open<$y_low) {
@@ -560,11 +558,11 @@ function red_eat_green_4_normal($dataArray){
 
 				if ($t_close>$y_high){
 					$score += 10;
-					$reasonStr .= ",吞噬了下影线";
+					$reasonStr .= "吞噬了下影线,";
 				}
 
 				if ($score == 40) {
-					$reasonStr .= ",并呈现吞噬所有影线的完美状态";
+					$reasonStr .= "并呈现吞噬所有影线的完美状态,";
 				}
 
 				return array(true,$score,$reasonStr);
@@ -617,8 +615,8 @@ function red_gun($dataArray){
 
 		if ($y_close_1>$y_open_2 && $y_close_1>$t_open && $y_open_1>$y_open_2 && $y_open_1>$t_open &&
 			$y_open_1<$y_close_2 && $y_open_1<$t_close && $y_close_1<$y_close_2 && $y_close_1<$t_close) {
-			$reasonStr = "形成多方炮";
-			$score = 15;
+			$reasonStr = "形成多方炮,";
+			$score = 25;
 
 			return array(true,$score,$reasonStr);
 		}
@@ -655,11 +653,11 @@ function volume_increase($dataArray){
 		$y5_factor = round($t_volume/$y_average,2);
 
 		if ($y1_factor >= 2 && $y1_factor <= 5) {
-			$reasonStr = "今日阳线放量，为昨天的".$y1_factor."倍";
+			$reasonStr = "今日阳线放量，为昨天的".$y1_factor."倍,";
 			$score = 10;
 
 			if ($y5_factor >= 2 && $y5_factor <= 5) {
-				$reasonStr .= "且为前5日平均量的".$y5_factor."倍";
+				$reasonStr .= "且为前5日平均量的".$y5_factor."倍,";
 				$score = 10;
 			}
 
@@ -701,22 +699,22 @@ function red_cross_average_line($dataArray){
 
 		if ($t_close > $ma_5 && $t_close > $ma_10 && $t_close > $ma_20 && $t_open < $ma_5 && $t_open < $ma_10 && $t_open < $ma_20) {
 			// 一阳穿N线
-			$reasonStr = "今日收出大阳线，一阳穿破5日、10日和20日均线";
+			$reasonStr = "今日收出大阳线，一阳穿破5日、10日和20日均线,";
 			$score = 25;
 
 			if ($t_close > $ma_30 && $t_open < $ma_30) {
-				$reasonStr .= ",并且突破了30日均线";
+				$reasonStr .= "并且突破了30日均线,";
 				$score += 10;
 			}
 
 			return array(true,$score,$reasonStr);
 		}elseif ($t_close > $ma_5 && $t_close > $ma_10 && $t_close > $ma_20 && $y_close < $ma_5 && $y_close < $ma_10 && $y_close < $ma_20){
 			// 跳空高开
-			$reasonStr = "今日收出跳空高开大阳线，一阳穿破5日、10日和20日均线";
+			$reasonStr = "今日收出跳空高开大阳线，一阳穿破5日、10日和20日均线,";
 			$score = 30;
 
 			if ($t_close > $ma_30 && $t_open < $ma_30) {
-				$reasonStr .= ",并且突破了30日均线";
+				$reasonStr .= "并且突破了30日均线,";
 				$score += 10;
 			}
 

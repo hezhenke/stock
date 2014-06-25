@@ -28,7 +28,8 @@ $sql = 'SELECT * FROM corp_codes where focus = 0';
 $result = $conn->getAll($sql);
 if ($result) {
 	foreach ($result as $corp){
-		$analysis_date = date("Y-m-d");
+		//$analysis_date = date("Y-m-d");
+		$analysis_date = "2014-06-24";
 		$stock_name = $corp['name'];
 		$code = $corp['code'];
 		$table_name = $code;
@@ -130,7 +131,7 @@ if ($result) {
 		}
 
 		if ($isSuggest) {
-			//print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$reason."\n得分：".$score."\n");
+			print_r("股票名：".$stock_name."\n股票代码：".$code."\n收盘价：".$detail[0]['close']."\n推荐理由：".$reason."\n得分：".$score."\n");
 		}
 
 
@@ -151,6 +152,9 @@ if ($result) {
 			$tempArray = array_slice($detail, 0, 2);
 			$percent = cal_percentage($tempArray);
 			$close = $detail[0]['close'];
+
+			$reason = substr($reason, 0, strlen($reason)-1);
+			$reason .= "。";
 
 			$sql = 'select * from suggest_list where code="'.$code.'" and date="'.$analysis_date.'"';
 			$item = $conn->getAll($sql);
