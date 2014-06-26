@@ -28,7 +28,7 @@ if ('get_suggest'==strtolower(trim($_REQUEST['m']))){
 		$rtime = date("Y-m-d");
 	}
 
-	$sql = 'select * from '.$table_name.' where date = "'.$rtime.'"';
+	$sql = 'select * from '.$table_name.' where date = "'.$rtime.'"  order by score desc';
 
 	$item = $conn->getAll($sql);
 
